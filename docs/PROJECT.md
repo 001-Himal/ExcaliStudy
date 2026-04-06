@@ -13,11 +13,15 @@ For AI-specific context and development rules, refer to **[AI_KNOWLEDGE_BASE.md]
 ```text
 ExcaliStudy/
 ├── app/                  # Next.js App Router (Pages, Layouts, API routes)
+│   ├── (features)/       # Feature-specific standalone pages
+│   │   ├── drafts/       # Standalone Draft management
+│   │   ├── projects/     # Standalone Project management
+│   │   └── settings/     # Redesigned compact Settings
 │   ├── globals.css       # Core styling & Tailwind directive imports
-│   └── (features)...     # e.g., /subjects, /tools, /roadmaps
+│   └── layout.tsx        # Root layout with theme/font providers
 ├── components/           # UI Components
-│   ├── excalidraw/       # Core platform canvas/sidebar components (AppStateContext, Canvas)
-│   │   ├── nodes.tsx     # React Flow custom node definitions
+│   ├── excalistudy/      # Core platform components (AppStateContext, Canvas)
+│   │   ├── nodes.tsx     # React Flow custom node definitions with NodeResizer
 │   │   └── AppStateContext.tsx # Centralized State Management bound to Supabase
 │   └── ui/               # Generic, reusable components (shadcn/ui origins)
 ├── database/             # External backend configuration maps & schemas
@@ -57,3 +61,4 @@ As the project shifts from a single-user / prototype environment to a multi-tena
 1. **Authentication / Multi-tenant Logic**: Migrate the global unauthenticated system to personalized accounts relying on Supabase built-in auth utilities and route-guards.
 2. **Dynamic Dock Interaction**: The Staging Dock is implemented to hold `staged_items`. Future scaling can connect the staged items dock to more robust spatial operating-system behaviors and keyboard shortcuts.
 3. **Performance/Canvas Optimization**: As nodes grow on the React Flow canvas, implement dynamic virtualization and limit auto-saving throttles to prevent Supabase thrashing.
+4. **Enhanced Node Interaction**: Expand the `NodeResizer` capabilities and add specialized interactive elements (e.g., mini-charts, progress-rings) within cards.

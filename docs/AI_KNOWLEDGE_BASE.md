@@ -31,5 +31,16 @@ The canvas runs on React Flow but behaves like an unbounded whiteboard.
 - **Supabase Fallbacks:** `supabaseUrl` can crash build operations in Next.js `next build` prerenders. `lib/supabase.ts` manages this fallback.
 
 ## 6. Development Ethos
-- **Hand-drawn Aesthetic:** The UI must feel like a notebook using the `Caveat` font. Avoid heavy gradients and hyper-corporate polish. Use standard tailwind `md` or `lg` radii, but maintain minimal structural borders.
 - **Don't Over-engineer:** ExcaliStudy prioritizes visual immediacy. Do not introduce complex Redux state trees or tRPC routers; rely on the central Context and Supabase client until extreme scale necessitates otherwise.
+
+## 7. UI Standards & Components
+To maintain the "personal notebook" feel while ensuring professional stability:
+- **Node Casing & Resizing:** All interactive nodes (Working Cards, Notes) must include a `<NodeResizer />` from `@xyflow/react`.
+- **Sidebar Headers:** Use `text-[11px]`, `uppercase`, `tracking-widest`, and `font-semibold` for section headers.
+- **Safe-Deletion Policy:** Never implement one-click deletion for primary entities (Projects/Drafts). Always wrap destructive actions in a `ConfirmationDialog` or double-check prompt.
+- **Canvas Zoom Constraints:** When using `fitView` for new node drops, always set `maxZoom: 1.0` to keep the UI from appearing overly "zoomed-in" on small items.
+- **Drag Cancellation:** Implement a "Drop-to-Cancel" zone on the right edge of the screen using a transparent/blurred overlay during active drag operations.
+
+## 8. Navigation & App Router
+- **Standalone Pages:** Primary entities like Drafts and Projects have dedicated pages (`/drafts`, `/projects`). Use these for high-density management, while the sidebar provides quick-access / staging behavior.
+- **Breadcrumbs:** Use minimalist navigation back to the Home canvas (`/`) from secondary pages.

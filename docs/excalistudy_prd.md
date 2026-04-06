@@ -15,6 +15,7 @@
 | 1.1 | Added Weekly View, Roadmap→Task spawn, Tools recent sort |
 | 1.2 | All open questions resolved |
 | 2.0 | Full architecture change — Excalidraw-style canvas, desktop-only, stripped back to core |
+| 2.1 | UI Refinement: Standalone Drafts/Projects pages, NodeResizer, Dark Mode support, Multi-font settings |
 
 ---
 
@@ -66,19 +67,16 @@ Mostly black and white. One warm accent only.
 | Sidebar background | `#F0EEE8` — slightly darker than canvas |
 | Sidebar border | `#DDD9D0` |
 
-**Dark mode:** Not in v1. Canvas apps are harder to dark-mode well — defer.
+**Theme Support:** v2.1 introduces a high-quality Dark Mode using `next-themes` with a carefully curated dark palette for the infinite canvas.
 
 ### 2.3 Typography
 
-**Handwritten font everywhere** — this is the defining character of ExcaliStudy.
+**Multi-font Environment** — v2.1 adds user preference for fonts across three scopes:
+- **Application/Sidebar:** Choose between Sans (Inter), Serif (Outfit/Roboto Serif), or Mono.
+- **Canvas Cards:** Handwritten (Caveat) is default for the "notebook" feel, but interchangeable via Settings.
+- **Text Notes:** Fixed handwritten for the sketch aesthetic.
 
-| Role | Font | Weight |
-|---|---|---|
-| All UI text | Caveat | 400 / 600 |
-| Fallback | Indie Flower | 400 |
-| Monospace (URLs, tags) | Caveat Brush | 400 |
-
-Import from Google Fonts. Caveat is clean enough to be readable at small sizes while still feeling handwritten.
+Import from Google Fonts. Caveat is the signature "sketch" font.
 
 ### 2.4 Canvas Aesthetic
 
@@ -103,9 +101,9 @@ Import from Google Fonts. Caveat is clean enough to be readable at small sizes w
 │  [Semester/Subjects]    │   ┌──────────┐            │
 │  [Roadmap]              │   │ card     │            │
 │  ───────────────        │   └──────────┘            │
-│  [Tools]                │   · · · · · · · · · · ·  │
+│  [Drafts] ──> /drafts   │   · · · · · · · · · · ·  │
+│  [Projects] ─> /projects│                           │
 │  ───────────────        │                           │
-│  [Profile]              │                           │
 │  [Settings]             │                           │
 └─────────────────────────────────────────────────────┘
 ```
@@ -259,7 +257,7 @@ Minimal — like Claude's sidebar bottom:
 
 ## 6. Canvas Cards
 
-Everything dragged onto the canvas becomes a **card**. Cards are movable, resizable (width only), and deletable from canvas (data stays in sidebar).
+Everything dragged onto the canvas becomes a **card**. Cards are movable, resizable via a corner handle (`NodeResizer`), and deletable from canvas (data stays in sidebar).
 
 ---
 

@@ -22,3 +22,11 @@ This document tracks the chronological sequence of architectural decisions and i
   - Implemented the "Working Card" system (Drafts) enabling dynamic branched checklist creation and a Pomodoro text timer component mapping directly to `.drafts` table on Supabase.
   - Finalized the ExcaliStudy naming cleanup by forcefully deleting the unused, deprecated `components/anchor/` directory to resolve Next.js Turbopack build crashes on Vercel (`Cannot find module './nodes'`).
   - Added centralized AI context mapping to streamline future feature scaling and PRD/Architecture understanding.
+
+### Phase 4: UI Refinement & Workflow Optimization
+- **April 07, 2026**:
+  - **Sidebar Redesign**: Space-efficient layout, uppercase headers, and `PanelLeftClose` toggle with custom animations.
+  - **Canvas Enhancements**: Capped `fitView` zoom at `1.0` on drops; integrated `NodeResizer` into interactive nodes.
+  - **Workflow Overhaul**: Implemented drag-to-cancel zone and standardized safe-deletion protocols with confirmation dialogs.
+  - **Standalone Management**: Decoupled Drafts and Projects into full-screen list/grid view pages.
+  - **Settings Redesign**: Minimalist dialog-style settings with font/theme toggles.
