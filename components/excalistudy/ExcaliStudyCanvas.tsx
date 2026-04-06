@@ -330,7 +330,7 @@ function CanvasContent() {
   );
 }
 
-export function ExcalidrawCanvas() {
+export function ExcaliStudyCanvas() {
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {

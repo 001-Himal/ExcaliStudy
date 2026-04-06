@@ -16,10 +16,10 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { useAppState } from "@/components/excalidraw/AppStateContext";
+import { useAppState } from "@/components/excalistudy/AppStateContext";
 import Link from "next/link";
 
-export function ExcalidrawSidebar({ className }: { className?: string }) {
+export function ExcaliStudySidebar({ className }: { className?: string }) {
   const { tools, subjects, drafts, assignments, roadmaps, sidebarFont, projects, activeProjectId, loadProjectContext, deleteProject } = useAppState();
   const { toggleSidebar } = useSidebar();
 

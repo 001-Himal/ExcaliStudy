@@ -1,4 +1,4 @@
-import { ExcalidrawCanvas } from "@/components/excalidraw/ExcalidrawCanvas";
+import { ExcaliStudyCanvas } from "@/components/excalistudy/ExcaliStudyCanvas";
 
 export default function Home() {
   return null;

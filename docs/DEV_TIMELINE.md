@@ -16,3 +16,9 @@ This document tracks the chronological sequence of architectural decisions and i
   - Added build-time fallbacks to `lib/supabase.ts` preventing `supabaseUrl is required` errors during Next.js deploy edge steps.
   - Renamed branding globally across `layout.tsx` metadata and sidebar DOM from **Anchor** to **ExcaliStudy** for a dedicated product feel.
   - Successfully renamed all internal references `components/anchor/*` folders to `components/excalistudy/*`, completing the full transition from the legacy prototype name.
+
+### Phase 3: Working Cards & Core Stability
+- **April 06, 2026**:
+  - Implemented the "Working Card" system (Drafts) enabling dynamic branched checklist creation and a Pomodoro text timer component mapping directly to `.drafts` table on Supabase.
+  - Finalized the ExcaliStudy naming cleanup by forcefully deleting the unused, deprecated `components/anchor/` directory to resolve Next.js Turbopack build crashes on Vercel (`Cannot find module './nodes'`).
+  - Added centralized AI context mapping to streamline future feature scaling and PRD/Architecture understanding.

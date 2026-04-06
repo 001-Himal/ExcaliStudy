@@ -3,6 +3,7 @@
 This document tracks the ongoing architectural decisions and scaling strategies for **ExcaliStudy** (formerly Anchor). It serves as a unified source of truth for the codebase's evolution, allowing any developer to understand the "why" and "how" behind the project architecture.
 
 For the chronological history of feature implementations, refer to **[DEV_TIMELINE.md](./DEV_TIMELINE.md)**.
+For AI-specific context and development rules, refer to **[AI_KNOWLEDGE_BASE.md](./AI_KNOWLEDGE_BASE.md)**.
 
 ---
 
@@ -15,13 +16,13 @@ ExcaliStudy/
 │   ├── globals.css       # Core styling & Tailwind directive imports
 │   └── (features)...     # e.g., /subjects, /tools, /roadmaps
 ├── components/           # UI Components
-│   ├── excalistudy/      # Core platform components (Sidebar, Canvas, State Context)
+│   ├── excalidraw/       # Core platform canvas/sidebar components (AppStateContext, Canvas)
 │   │   ├── nodes.tsx     # React Flow custom node definitions
 │   │   └── AppStateContext.tsx # Centralized State Management bound to Supabase
 │   └── ui/               # Generic, reusable components (shadcn/ui origins)
 ├── database/             # External backend configuration maps & schemas
 │   └── 01_schema.sql     # Supabase SQL initialization logic
-├── docs/                 # Project documentation and timelines
+├── docs/                 # Project documentation and timelines, AI knowledge base
 ├── lib/                  # Utilities, mock data, and 3rd party initializations
 │   └── supabase.ts       # Supabase client singleton
 └── public/               # Static assets
@@ -53,6 +54,6 @@ As the project shifts from a single-user / prototype environment to a multi-tena
 
 ## Future Roadmap & Known Fixes
 
-1. **Working Cards Canvas Visuals**: The foundational data backend for Working Cards ("Drafts") has been built, but the specific visual representations inside `ExcaliStudyCanvas.tsx` (`WorkingCardNode`) need to be mapped explicitly to display dynamic Checklists and fully functional embedded Pomodoro text timers.
-2. **Authentication / Multi-tenant Logic**: Migrate the global unauthenticated system to personalized accounts relying on Supabase built-in auth utilities and route-guards.
-3. **Dynamic Dock Interaction**: Connect the staged items dock to persistent or robust interactive UX behaviors for a more spatial operating-system feel.
+1. **Authentication / Multi-tenant Logic**: Migrate the global unauthenticated system to personalized accounts relying on Supabase built-in auth utilities and route-guards.
+2. **Dynamic Dock Interaction**: The Staging Dock is implemented to hold `staged_items`. Future scaling can connect the staged items dock to more robust spatial operating-system behaviors and keyboard shortcuts.
+3. **Performance/Canvas Optimization**: As nodes grow on the React Flow canvas, implement dynamic virtualization and limit auto-saving throttles to prevent Supabase thrashing.

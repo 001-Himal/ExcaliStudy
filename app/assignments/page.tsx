@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAppState } from "@/components/excalidraw/AppStateContext";
+import { useAppState } from "@/components/excalistudy/AppStateContext";
 import { Search, X, Pin, PinOff, Calendar, Plus, Trash2, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
