@@ -1,5 +1,5 @@
 import { Handle, Position, NodeProps, useReactFlow } from "@xyflow/react";
-import { CheckSquare, Square, Trash2, Play, Pause, RotateCcw, Save, GitBranch } from "lucide-react";
+import { CheckSquare, Square, Trash2, Play, Pause, RotateCcw, Save, GitBranch, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAppState } from "./AppStateContext";
 
@@ -13,8 +13,7 @@ const CardWrapper = ({ children, className = "", cardFont = "" }: { children: Re
 );
 
 export function AssignmentNode({ data }: NodeProps) {
-  const [checked, setChecked] = useState(false);
-  const { assignments, subjects, cardFont } = useAppState();
+  const { assignments, subjects, cardFont, updateAssignment } = useAppState();
   const asn = assignments.find(a => a.id === data.originalId);
   
   if (!asn) return <CardWrapper cardFont={cardFont}>Assignment not found</CardWrapper>;
@@ -31,11 +30,11 @@ export function AssignmentNode({ data }: NodeProps) {
   return (
     <CardWrapper cardFont={cardFont} className={days < 0 ? "border-l-4 border-l-destructive" : ""}>
       <div className="flex gap-2 items-start mb-2">
-        <button onClick={() => setChecked(!checked)} className="mt-0.5 text-foreground">
-          {checked ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+        <button onClick={() => updateAssignment(asn.id, { status: asn.status === "submitted" ? "pending" : "submitted" })} className="mt-0.5 text-foreground">
+          {asn.status === "submitted" ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
         </button>
         <div className="flex-1">
-          <h3 className={`font-semibold text-lg leading-tight ${checked ? "line-through text-muted-foreground" : ""}`}>
+          <h3 className={`font-semibold text-lg leading-tight ${asn.status === "submitted" ? "line-through text-muted-foreground" : ""}`}>
             {asn.title}
           </h3>
           <p className="text-sm text-muted-foreground mt-0.5">
@@ -62,7 +61,7 @@ export function AssignmentNode({ data }: NodeProps) {
 }
 
 export function SubjectNode({ id, data }: NodeProps) {
-  const { subjects, cardFont } = useAppState();
+  const { subjects, cardFont, toggleSubjectUnit } = useAppState();
   const sub = subjects.find(s => s.id === data.originalId);
   const { addNodes, getNode } = useReactFlow();
 
@@ -111,13 +110,15 @@ export function SubjectNode({ id, data }: NodeProps) {
         {sub.units.map(unit => {
           return (
             <div key={unit.id} className="flex items-center justify-between group p-1 rounded-sm hover:bg-black/5 transition-colors">
-              <div className="flex items-center gap-2">
-                <div className="text-muted-foreground">{unit.isDone ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 opacity-50" />}</div>
+              <button onClick={() => toggleSubjectUnit(sub.id, unit.id)} className="flex items-center gap-2 text-left">
+                <div className="text-muted-foreground">
+                  {unit.isDone ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 opacity-50" />}
+                </div>
                 <span className={`text-sm ${unit.isDone ? "line-through text-muted-foreground" : "text-foreground"}`}>{unit.title}</span>
-              </div>
+              </button>
               <button 
                 onClick={() => handleBranch(unit)}
-                className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-sm transition-all hover:brightness-110"
+                className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-[10px] uppercase font-bold bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-sm transition-all hover:bg-accent"
               >
                 <GitBranch className="w-3 h-3" /> Branch
               </button>
@@ -130,7 +131,7 @@ export function SubjectNode({ id, data }: NodeProps) {
 }
 
 export function RoadmapNode({ id, data }: NodeProps) {
-  const { roadmaps, cardFont } = useAppState();
+  const { roadmaps, cardFont, toggleRoadmapMilestone } = useAppState();
   const rm = roadmaps.find(r => r.id === data.originalId);
   const { addNodes, getNode } = useReactFlow();
 
@@ -179,13 +180,15 @@ export function RoadmapNode({ id, data }: NodeProps) {
         {rm.milestones.map(m => {
           return (
             <div key={m.id} className="flex items-center justify-between group p-1 rounded-sm hover:bg-black/5 transition-colors">
-              <div className="flex items-center gap-2">
-                <div className="text-muted-foreground">{m.isDone ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 opacity-50" />}</div>
+              <button onClick={() => toggleRoadmapMilestone(rm.id, m.id)} className="flex items-center gap-2 text-left">
+                <div className="text-muted-foreground">
+                  {m.isDone ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4 opacity-50" />}
+                </div>
                 <span className={`text-sm ${m.isDone ? "line-through text-muted-foreground" : "text-foreground"}`}>{m.title}</span>
-              </div>
+              </button>
               <button 
                 onClick={() => handleBranch(m)}
-                className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-sm transition-all hover:brightness-110"
+                className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-[10px] uppercase font-bold bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-sm transition-all hover:bg-accent"
               >
                 <GitBranch className="w-3 h-3" /> Branch
               </button>
@@ -316,11 +319,16 @@ export function WorkingCardNode({ id, data }: NodeProps) {
 
   return (
     <CardWrapper cardFont={cardFont} className="min-w-[280px]">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="font-semibold text-lg max-w-[180px] break-words leading-tight">{data.title as string}</h3>
-        <button onClick={handleSave} className="text-xs flex items-center gap-1 bg-accent/10 hover:bg-accent text-accent-foreground px-2 py-1 rounded-sm transition-colors border border-accent/20 h-fit">
-          <Save className="w-3 h-3" /> Save Draft
-        </button>
+      <div className="flex justify-between items-start mb-3 gap-2">
+        <h3 className="font-semibold text-lg max-w-[180px] break-words leading-tight flex-1">{data.title as string}</h3>
+        <div className="flex flex-col gap-2 items-end">
+          <button onClick={() => deleteElements({ nodes: [{ id }] })} className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-1.5 rounded-full transition-colors flex bg-background border border-border shadow-sm">
+            <X className="w-4 h-4 stroke-[2.5]" />
+          </button>
+          <button onClick={handleSave} className="text-xs flex items-center gap-1 bg-accent/10 hover:bg-accent text-accent-foreground px-2 py-1 rounded-sm transition-colors border border-accent/20 h-fit w-full justify-center">
+            <Save className="w-3 h-3" /> Save Draft
+          </button>
+        </div>
       </div>
 
       <div className="bg-muted rounded-md p-2 mb-3 flex items-center justify-between">

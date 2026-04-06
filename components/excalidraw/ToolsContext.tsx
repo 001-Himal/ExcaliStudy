@@ -16,7 +16,7 @@ export function ToolsProvider({ children }: { children: React.ReactNode }) {
 
   // Client-side hydration
   useEffect(() => {
-    const stored = localStorage.getItem("excalistudy_tools");
+    const stored = localStorage.getItem("Excalidraw_tools");
     if (stored) {
       setTools(JSON.parse(stored));
     } else {
@@ -26,7 +26,7 @@ export function ToolsProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (tools.length > 0) {
-      localStorage.setItem("excalistudy_tools", JSON.stringify(tools));
+      localStorage.setItem("Excalidraw_tools", JSON.stringify(tools));
     }
   }, [tools]);
 
@@ -65,4 +65,5 @@ export function useTools() {
   if (!context) throw new Error("useTools must be used within ToolsProvider");
   return context;
 }
+
 

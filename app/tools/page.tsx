@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAppState } from "@/components/excalistudy/AppStateContext";
+import { useAppState } from "@/components/excalidraw/AppStateContext";
 import { Search, Plus, Trash2, X, Pin, PinOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,7 @@ export default function ToolsPhase() {
   return (
     <div className={`h-full w-full overflow-y-auto bg-background pointer-events-auto relative transition-all duration-300 ease-in-out ${state === "expanded" ? "md:pl-[var(--sidebar-width)]" : ""}`}>
       <Link href="/">
-        <Button variant="ghost" size="icon" className="absolute top-6 right-6 hover:bg-destructive/10 hover:text-destructive group transition-colors z-20">
+        <Button variant="ghost" className="absolute top-6 right-6 h-16 w-16 rounded-full hover:bg-destructive/10 hover:text-destructive group transition-colors z-20 p-0">
           <X className="h-10 w-10 text-muted-foreground group-hover:text-destructive transition-colors shrink-0" strokeWidth={2.5} />
         </Button>
       </Link>
@@ -147,25 +147,27 @@ export default function ToolsPhase() {
                 window.dispatchEvent(new Event('app-drag-end'));
               }}
             >
-              <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Floating Action Menu */}
+              <div className="absolute top-2 right-2 flex gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity bg-white/95 backdrop-blur-sm border shadow-sm p-1 rounded-2xl z-10">
                 <Button 
-                  variant={tool.isPinned ? "default" : "secondary"}
+                  variant={tool.isPinned ? "default" : "ghost"}
                   size="icon" 
-                  className={`h-8 w-8 rounded-full shadow-sm ${tool.isPinned ? 'bg-primary' : ''}`}
+                  className={`h-8 w-8 rounded-full ${tool.isPinned ? 'bg-primary' : ''}`}
                   onClick={(e) => { e.stopPropagation(); toggleToolPin(tool.id); }}
                 >
-                  {tool.isPinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+                  {tool.isPinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
                 </Button>
                 <Button 
-                  variant="destructive" 
+                  variant="ghost" 
                   size="icon" 
-                  className="h-8 w-8 rounded-full shadow-sm"
+                  className="h-8 w-8 rounded-full hover:bg-destructive hover:text-destructive-foreground"
                   onClick={(e) => { e.stopPropagation(); removeTool(tool.id); }}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
 
+              {/* Card Header Content */}
               <div className="flex items-center gap-4 mb-4">
                 <div className="h-12 w-12 rounded-lg bg-black/5 flex items-center justify-center border p-1 overflow-hidden shrink-0 shadow-sm">
                   <img 
@@ -178,7 +180,7 @@ export default function ToolsPhase() {
                     }}
                   />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 pr-2">
                   <h3 className="font-bold text-lg truncate font-indie" title={tool.title}>{tool.title}</h3>
                   <Badge variant="secondary" className="font-mono text-[10px] uppercase font-normal truncate max-w-full">
                     {tool.domain}
@@ -210,4 +212,6 @@ export default function ToolsPhase() {
     </div>
   );
 }
+
+
 

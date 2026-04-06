@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAppState } from "@/components/excalistudy/AppStateContext";
+import { useAppState } from "@/components/excalidraw/AppStateContext";
 import { Search, X, Pin, PinOff, Map, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -48,7 +48,7 @@ export default function RoadmapsPhase() {
   return (
     <div className={`h-full w-full overflow-y-auto bg-background pointer-events-auto relative transition-all duration-300 ease-in-out ${state === "expanded" ? "md:pl-[var(--sidebar-width)]" : ""}`}>
       <Link href="/">
-        <Button variant="ghost" size="icon" className="absolute top-6 right-6 hover:bg-destructive/10 hover:text-destructive group transition-colors z-20">
+        <Button variant="ghost" className="absolute top-6 right-6 h-16 w-16 rounded-full hover:bg-destructive/10 hover:text-destructive group transition-colors z-20 p-0">
           <X className="h-10 w-10 text-muted-foreground group-hover:text-destructive transition-colors shrink-0" strokeWidth={2.5} />
         </Button>
       </Link>
@@ -165,22 +165,24 @@ export default function RoadmapsPhase() {
               }}
               onDragEnd={() => window.dispatchEvent(new Event('app-drag-end'))}
             >
-              <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Floating Action Menu */}
+              <div className="absolute top-2 right-2 flex gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity bg-white/95 backdrop-blur-sm border shadow-sm p-1 rounded-2xl z-10">
                 <Button 
-                  variant={rm.isPinned ? "default" : "secondary"}
+                  variant={rm.isPinned ? "default" : "ghost"}
                   size="icon" 
-                  className={`h-8 w-8 rounded-full shadow-sm ${rm.isPinned ? 'bg-primary' : ''}`}
+                  className={`h-8 w-8 rounded-full ${rm.isPinned ? 'bg-primary' : ''}`}
                   onClick={(e) => { e.stopPropagation(); toggleRoadmapPin(rm.id); }}
                 >
-                  {rm.isPinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+                  {rm.isPinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
                 </Button>
               </div>
 
+              {/* Card Header Content */}
               <div className="flex items-center gap-4 mb-4">
                 <div className="h-12 w-12 rounded-lg flex items-center justify-center border-2 border-transparent bg-black/5 shrink-0 shadow-sm">
                   <Map className="h-6 w-6 text-foreground/70" />
                 </div>
-                <div className="min-w-0 pr-8">
+                <div className="min-w-0 pr-2">
                   <h3 className="font-bold text-lg truncate font-indie" title={rm.title}>{rm.title}</h3>
                   <Badge variant="secondary" className="font-mono text-[10px] uppercase font-normal truncate max-w-full">
                     {rm.milestonesTotal} Milestones
@@ -210,4 +212,6 @@ export default function RoadmapsPhase() {
     </div>
   );
 }
+
+
 

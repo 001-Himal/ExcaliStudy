@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useAppState } from "@/components/excalistudy/AppStateContext";
+import { useAppState } from "@/components/excalidraw/AppStateContext";
 import { Button } from "@/components/ui/button";
 import { X, Moon, Sun, Monitor } from "lucide-react";
 import Link from "next/link";
@@ -153,4 +153,6 @@ export default function SettingsPhase() {
     </div>
   );
 }
+
+
 

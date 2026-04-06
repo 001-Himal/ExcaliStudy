@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAppState } from "@/components/excalistudy/AppStateContext";
-import { Search, Plus, X, Pin, PinOff, Trash2 } from "lucide-react";
+import { useAppState } from "@/components/excalidraw/AppStateContext";
+import { Search, Plus, X, Pin, PinOff, Trash2, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -71,7 +71,7 @@ export default function SubjectsPhase() {
   return (
     <div className={`h-full w-full overflow-y-auto bg-background pointer-events-auto relative transition-all duration-300 ease-in-out ${state === "expanded" ? "md:pl-[var(--sidebar-width)]" : ""}`}>
       <Link href="/">
-        <Button variant="ghost" size="icon" className="absolute top-6 right-6 hover:bg-destructive/10 hover:text-destructive group transition-colors z-20">
+        <Button variant="ghost" className="absolute top-6 right-6 h-16 w-16 rounded-full hover:bg-destructive/10 hover:text-destructive group transition-colors z-20 p-0">
           <X className="h-10 w-10 text-muted-foreground group-hover:text-destructive transition-colors shrink-0" strokeWidth={2.5} />
         </Button>
       </Link>
@@ -190,29 +190,30 @@ export default function SubjectsPhase() {
               }}
               onDragEnd={() => window.dispatchEvent(new Event('app-drag-end'))}
             >
-              <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Floating Action Menu */}
+              <div className="absolute top-2 right-2 flex gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity bg-white/95 backdrop-blur-sm border shadow-sm p-1 rounded-2xl z-10">
                 <Button 
-                  variant={sub.isPinned ? "default" : "secondary"}
+                  variant={sub.isPinned ? "default" : "ghost"}
                   size="icon" 
-                  className={`h-8 w-8 rounded-full shadow-sm ${sub.isPinned ? 'bg-primary' : ''}`}
+                  className={`h-8 w-8 rounded-full ${sub.isPinned ? 'bg-primary' : ''}`}
                   onClick={(e) => { e.stopPropagation(); toggleSubjectPin(sub.id); }}
                   title={sub.isPinned ? "Unpin" : "Pin"}
                 >
                   {sub.isPinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full shadow-sm"
+                  className="h-8 w-8 rounded-full"
                   onClick={(e) => { e.stopPropagation(); openEditForm(sub); }}
                   title="Edit Subject"
                 >
-                  <Plus className="h-3 w-3" style={{ transform: 'rotate(45deg)' }} /> 
+                  <Pencil className="h-3 w-3" /> 
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full shadow-sm hover:bg-destructive hover:text-white"
+                  className="h-8 w-8 rounded-full hover:bg-destructive hover:text-destructive-foreground"
                   onClick={(e) => { e.stopPropagation(); removeSubject(sub.id); }}
                   title="Delete Subject"
                 >
@@ -220,6 +221,7 @@ export default function SubjectsPhase() {
                 </Button>
               </div>
 
+              {/* Card Header Content */}
               <div className="flex items-center gap-4 mb-4">
                 <div 
                   className="h-12 w-12 rounded-lg flex items-center justify-center border-2 border-dashed shrink-0 shadow-sm"
@@ -229,9 +231,9 @@ export default function SubjectsPhase() {
                     {sub.name.substring(0, 2).toUpperCase()}
                   </span>
                 </div>
-                <div className="min-w-0 pr-8">
+                <div className="min-w-0 pr-2">
                   <h3 className="font-bold text-lg truncate font-indie" title={sub.name}>{sub.name}</h3>
-                  <Badge variant="secondary" className="font-mono text-[10px] uppercase font-normal truncate max-w-full">
+                  <Badge variant="secondary" className="font-mono text-[10px] uppercase font-normal truncate max-w-full mt-1">
                     {sub.unitsTotal} units
                   </Badge>
                 </div>
@@ -259,4 +261,6 @@ export default function SubjectsPhase() {
     </div>
   );
 }
+
+
 

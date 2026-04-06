@@ -16,11 +16,11 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { useAppState } from "@/components/excalistudy/AppStateContext";
+import { useAppState } from "@/components/excalidraw/AppStateContext";
 import Link from "next/link";
 
-export function ExcaliStudySidebar({ className }: { className?: string }) {
-  const { tools, subjects, drafts, assignments, roadmaps, sidebarFont } = useAppState();
+export function ExcalidrawSidebar({ className }: { className?: string }) {
+  const { tools, subjects, drafts, assignments, roadmaps, sidebarFont, projects, activeProjectId, loadProjectContext, deleteProject } = useAppState();
   const { toggleSidebar } = useSidebar();
 
   const getDaysRemaining = (deadline: string) => {
@@ -42,7 +42,9 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
   return (
     <Sidebar className={`border-r-sidebar-border bg-sidebar ${sidebarFont} ${className || ""}`}>
       <SidebarHeader className="h-14 flex items-center px-4 relative">
-        <h1 className="text-xl font-bold tracking-tight">ExcaliStudy</h1>
+        <Link href="/" className="text-2xl font-black font-sans text-primary tracking-widest hover:opacity-80 transition-opacity text-left focus:outline-none">
+          EXCALIDRAW
+        </Link>
         <button onClick={toggleSidebar} className="absolute right-2 top-3 p-1 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
           <X className="h-6 w-6" strokeWidth={2.5} />
         </button>
@@ -249,6 +251,68 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
 
         <div className="h-[1px] bg-sidebar-border mx-4 my-2" />
 
+        {/* PROJECTS */}
+        <Collapsible defaultOpen className="group/collapsible">
+          <SidebarGroup>
+            <SidebarGroupLabel className="p-0 h-auto w-full">
+              <div className="flex w-full items-center justify-between p-2">
+                <span className="font-mono text-sm tracking-widest text-muted-foreground uppercase">
+                  Projects
+                </span>
+                <div className="flex gap-1 ml-auto">
+                  <CollapsibleTrigger>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                  </CollapsibleTrigger>
+                </div>
+              </div>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {projects.length === 0 && (
+                    <div className="px-5 py-2 text-xs text-muted-foreground italic">No saved projects.</div>
+                  )}
+                  {projects.map((proj: any) => (
+                    <SidebarMenuItem key={proj.id}>
+                      <div className="flex items-center w-full">
+                        <button
+                          onClick={() => {
+                            // Request canvas to save current first, then load
+                            window.dispatchEvent(new CustomEvent("app-request-save-and-load", { detail: { id: proj.id } }));
+                          }}
+                          className={`flex-1 flex items-center gap-2 w-full hover:bg-black/5 p-2 text-sm rounded-sm text-left ${activeProjectId === proj.id ? 'bg-accent font-medium' : ''}`}
+                        >
+                          <span className="truncate">{proj.title}</span>
+                          {activeProjectId === proj.id && (
+                            <span className="ml-auto w-2 h-2 rounded-full bg-green-500"></span>
+                          )}
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); deleteProject(proj.id); }}
+                          className="p-2 text-muted-foreground hover:text-destructive shrink-0"
+                          title="Delete Project"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </SidebarMenuItem>
+                  ))}
+                  <div className="px-3 pt-2">
+                    <button 
+                      onClick={() => window.dispatchEvent(new CustomEvent("app-request-save-as"))}
+                      className="w-full text-xs py-1.5 border border-dashed rounded-sm border-muted-foreground/30 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      + Save Current Canvas
+                    </button>
+                  </div>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
+        <div className="h-[1px] bg-sidebar-border mx-4 my-2" />
+
         {/* TOOLS */}
         <Collapsible className="group/collapsible">
           <SidebarGroup>
@@ -313,4 +377,6 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
     </Sidebar>
   );
 }
+
+
 

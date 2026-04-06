@@ -11,6 +11,14 @@ export type StagedItem = {
   data?: any; // To hold any additional required visualization data
 };
 
+export type ExcaliProject = {
+  id: string;
+  title: string;
+  nodes: any[];
+  edges: any[];
+  updatedAt: string;
+};
+
 type AppStateContextType = {
   tools: (Tool & { isPinned?: boolean })[];
   subjects: (Subject & { isPinned?: boolean })[];
@@ -18,6 +26,10 @@ type AppStateContextType = {
   roadmaps: (Roadmap & { isPinned?: boolean })[];
   drafts: DraftCard[];
   stagedItems: StagedItem[];
+
+  projects: ExcaliProject[];
+  activeProjectId: string | null;
+  setActiveProjectId: (id: string | null) => void;
 
   sidebarFont: string;
   textFont: string;
@@ -44,6 +56,8 @@ type AppStateContextType = {
   // Edit Actions
   updateSubject: (id: string, name: string, color: string, units: string[]) => void;
   updateAssignment: (id: string, updates: Partial<Omit<Assignment & { isPinned?: boolean }, 'id'>>) => void;
+  toggleSubjectUnit: (subjectId: string, unitId: string) => void;
+  toggleRoadmapMilestone: (roadmapId: string, milestoneId: string) => void;
 
   // Staging Dock Actions
   stageItem: (item: StagedItem) => void;
@@ -58,6 +72,11 @@ type AppStateContextType = {
   toggleSubjectPin: (id: string) => void;
   toggleAssignmentPin: (id: string) => void;
   toggleRoadmapPin: (id: string) => void;
+
+  // Project Actions
+  saveProject: (title: string, nodes: any[], edges: any[], projectId?: string) => void;
+  loadProjectContext: (id: string | null) => void;
+  deleteProject: (id: string) => void;
 };
 
 const AppStateContext = createContext<AppStateContextType | undefined>(undefined);
@@ -69,6 +88,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [roadmaps, setRoadmaps] = useState<(Roadmap & { isPinned?: boolean })[]>([]);
   const [drafts, setDrafts] = useState<DraftCard[]>([]);
   const [stagedItems, setStagedItems] = useState<StagedItem[]>([]);
+  const [projects, setProjects] = useState<ExcaliProject[]>([]);
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [sidebarFont, setSidebarFont] = useState<string>("font-sans");
   const [textFont, setTextFont] = useState<string>("font-sans");
   const [cardFont, setCardFont] = useState<string>("font-caveat");
@@ -126,43 +147,49 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
           topics: d.topics, timerMinutes: d.timer_minutes
         })));
       } else {
-        const storedDrafts = localStorage.getItem("excalistudy_drafts");
+        const storedDrafts = localStorage.getItem("Excalidraw_drafts");
         if (storedDrafts) setDrafts(JSON.parse(storedDrafts));
       }
 
       // Staged items (keep transient in localStorage)
-      const storedStaged = localStorage.getItem("excalistudy_staged");
+      const storedStaged = localStorage.getItem("Excalidraw_staged");
       if (storedStaged) setStagedItems(JSON.parse(storedStaged));
+
+      // Load Projects from localStorage for persistence
+      const storedProjects = localStorage.getItem("Excalidraw_projects");
+      if (storedProjects) setProjects(JSON.parse(storedProjects));
+      const activeProjId = localStorage.getItem("Excalidraw_active_project");
+      if (activeProjId) setActiveProjectId(activeProjId);
     }
     fetchAll();
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("excalistudy_staged", JSON.stringify(stagedItems));
+    localStorage.setItem("Excalidraw_staged", JSON.stringify(stagedItems));
   }, [stagedItems]);
 
   useEffect(() => {
-    const sFont = localStorage.getItem("excalistudy_sidebarFont");
+    const sFont = localStorage.getItem("Excalidraw_sidebarFont");
     if (sFont) setSidebarFont(sFont);
-    const tFont = localStorage.getItem("excalistudy_textFont");
+    const tFont = localStorage.getItem("Excalidraw_textFont");
     if (tFont) setTextFont(tFont);
-    const cFont = localStorage.getItem("excalistudy_cardFont");
+    const cFont = localStorage.getItem("Excalidraw_cardFont");
     if (cFont) setCardFont(cFont);
   }, []);
 
   const handleSetSidebarFont = (f: string) => {
     setSidebarFont(f);
-    localStorage.setItem("excalistudy_sidebarFont", f);
+    localStorage.setItem("Excalidraw_sidebarFont", f);
   };
 
   const handleSetTextFont = (f: string) => {
     setTextFont(f);
-    localStorage.setItem("excalistudy_textFont", f);
+    localStorage.setItem("Excalidraw_textFont", f);
   };
 
   const handleSetCardFont = (f: string) => {
     setCardFont(f);
-    localStorage.setItem("excalistudy_cardFont", f);
+    localStorage.setItem("Excalidraw_cardFont", f);
   };
 
   // ---- TOOL LOGIC ----
@@ -323,6 +350,44 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const toggleSubjectUnit = async (subjectId: string, unitId: string) => {
+    let newSubjectObj: any = null;
+    setSubjects(prev => prev.map(s => {
+      if (s.id === subjectId) {
+        const newUnits = s.units.map(u => u.id === unitId ? { ...u, isDone: !u.isDone } : u);
+        newSubjectObj = { ...s, units: newUnits, unitsDone: newUnits.filter(u => u.isDone).length };
+        return newSubjectObj;
+      }
+      return s;
+    }));
+    
+    if (newSubjectObj) {
+      await supabase.from('subjects').update({
+        units_done: newSubjectObj.unitsDone,
+        units: newSubjectObj.units
+      }).eq('id', subjectId);
+    }
+  };
+
+  const toggleRoadmapMilestone = async (roadmapId: string, milestoneId: string) => {
+    let newRoadmapObj: any = null;
+    setRoadmaps(prev => prev.map(r => {
+      if (r.id === roadmapId) {
+        const newMilestones = r.milestones.map(m => m.id === milestoneId ? { ...m, isDone: !m.isDone } : m);
+        newRoadmapObj = { ...r, milestones: newMilestones, milestonesDone: newMilestones.filter(m => m.isDone).length };
+        return newRoadmapObj;
+      }
+      return r;
+    }));
+
+    if (newRoadmapObj) {
+      await supabase.from('roadmaps').update({
+        milestones_done: newRoadmapObj.milestonesDone,
+        milestones: newRoadmapObj.milestones
+      }).eq('id', roadmapId);
+    }
+  };
+
 
   const addRoadmap = async (title: string, rawMilestones: {title: string, completed: boolean}[]) => {
     const valid = rawMilestones.filter(m => m.title.trim() !== "");
@@ -425,16 +490,75 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     await supabase.from('drafts').delete().eq('id', id);
   };
 
+  // ---- PROJECT LOGIC ----
+  const saveProject = (title: string, nodes: any[], edges: any[], projectId?: string) => {
+    setProjects(prev => {
+      const existingId = projectId || activeProjectId;
+      let newProjects;
+      
+      if (existingId) {
+        newProjects = prev.map(p => p.id === existingId ? { ...p, title, nodes, edges, updatedAt: new Date().toISOString() } : p);
+      } else {
+        const newProject: ExcaliProject = {
+          id: `proj-${Date.now()}`,
+          title,
+          nodes,
+          edges,
+          updatedAt: new Date().toISOString()
+        };
+        newProjects = [...prev, newProject];
+        setActiveProjectId(newProject.id); // Set the newly created one as active
+        localStorage.setItem("Excalidraw_active_project", newProject.id);
+      }
+      
+      localStorage.setItem("Excalidraw_projects", JSON.stringify(newProjects));
+      return newProjects;
+    });
+  };
+
+  const loadProjectContext = (id: string | null) => {
+    setActiveProjectId(id);
+    if (id) {
+      localStorage.setItem("Excalidraw_active_project", id);
+    } else {
+      localStorage.removeItem("Excalidraw_active_project");
+    }
+    // The actual replacing of nodes & edges will be handled via an event or effect inside Canvas
+    window.dispatchEvent(new CustomEvent("app-load-project", { detail: { id } }));
+  };
+
+  const deleteProject = (id: string) => {
+    setProjects(prev => {
+      const newProjects = prev.filter(p => p.id !== id);
+      localStorage.setItem("Excalidraw_projects", JSON.stringify(newProjects));
+      if (activeProjectId === id) {
+        setActiveProjectId(null);
+        localStorage.removeItem("Excalidraw_active_project");
+      }
+      return newProjects;
+    });
+  };
+
   return (
     <AppStateContext.Provider value={{
+      // Data
+      projects,
+      activeProjectId,
+      setActiveProjectId,
       tools, subjects, assignments, roadmaps, drafts, stagedItems,
       addTool, removeTool, toggleToolPin,
       addSubject, addAssignment, addRoadmap,
       removeSubject, removeAssignment, removeRoadmap,
       updateSubject, updateAssignment,
+      toggleSubjectUnit, toggleRoadmapMilestone,
       stageItem, unstageItem, clearStagedItems,
       saveDraft, removeDraft,
-      toggleSubjectPin, toggleAssignmentPin, toggleRoadmapPin,
+      toggleSubjectPin,
+      toggleAssignmentPin,
+      toggleRoadmapPin,
+      saveProject,
+      loadProjectContext,
+      deleteProject,
       sidebarFont, textFont, cardFont,
       setSidebarFont: handleSetSidebarFont,
       setTextFont: handleSetTextFont,
@@ -450,4 +574,5 @@ export function useAppState() {
   if (!context) throw new Error("useAppState must be used within AppStateProvider");
   return context;
 }
+
 
