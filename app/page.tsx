@@ -1,7 +1,8 @@
-import { AnchorCanvas } from "@/components/anchor/AnchorCanvas";
+import { ExcaliStudyCanvas } from "@/components/excalistudy/ExcaliStudyCanvas";
 
 export default function Home() {
   return (
-    <AnchorCanvas />
+    <ExcaliStudyCanvas />
   );
 }
+

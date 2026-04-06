@@ -16,10 +16,10 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { useAppState } from "@/components/anchor/AppStateContext";
+import { useAppState } from "@/components/excalistudy/AppStateContext";
 import Link from "next/link";
 
-export function AnchorSidebar({ className }: { className?: string }) {
+export function ExcaliStudySidebar({ className }: { className?: string }) {
   const { tools, subjects, drafts, assignments, roadmaps, sidebarFont } = useAppState();
   const { toggleSidebar } = useSidebar();
 
@@ -63,8 +63,8 @@ export function AnchorSidebar({ className }: { className?: string }) {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {assignments.filter(a => a.isPinned).map((asn) => {
-                    const subject = subjects.find((s) => s.id === asn.subjectId);
+                  {assignments.filter((a: any) => a.isPinned).map((asn: any) => {
+                    const subject = subjects.find((s: any) => s.id === asn.subjectId);
                     const days = getDaysRemaining(asn.deadline);
                     let badgeColor = "bg-muted text-muted-foreground";
                     let badgeText = `${days} days`;
@@ -129,7 +129,7 @@ export function AnchorSidebar({ className }: { className?: string }) {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {subjects.filter(s => s.isPinned).map((sub) => (
+                  {subjects.filter((s: any) => s.isPinned).map((sub: any) => (
                     <SidebarMenuItem key={sub.id}>
                       <SidebarMenuButton
                         className="cursor-grab active:cursor-grabbing hover:bg-black/5"
@@ -174,7 +174,7 @@ export function AnchorSidebar({ className }: { className?: string }) {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {roadmaps.filter(r => r.isPinned).map((rm) => (
+                  {roadmaps.filter((r: any) => r.isPinned).map((rm: any) => (
                     <SidebarMenuItem key={rm.id}>
                       <SidebarMenuButton 
                         className="cursor-grab active:cursor-grabbing hover:bg-black/5"
@@ -217,7 +217,7 @@ export function AnchorSidebar({ className }: { className?: string }) {
                   {drafts.length === 0 && (
                     <div className="px-5 py-2 text-xs text-muted-foreground italic">No saved drafts.</div>
                   )}
-                  {drafts.map((draft) => (
+                  {drafts.map((draft: any) => (
                     <SidebarMenuItem key={draft.id}>
                       <SidebarMenuButton 
                         className="cursor-grab active:cursor-grabbing hover:bg-black/5"
@@ -259,7 +259,7 @@ export function AnchorSidebar({ className }: { className?: string }) {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {tools.filter(t => t.isPinned).map((tool) => (
+                  {tools.filter((t: any) => t.isPinned).map((tool: any) => (
                     <SidebarMenuItem key={tool.id}>
                       <SidebarMenuButton 
                         className="cursor-grab active:cursor-grabbing hover:bg-black/5"
@@ -303,3 +303,4 @@ export function AnchorSidebar({ className }: { className?: string }) {
     </Sidebar>
   );
 }
+

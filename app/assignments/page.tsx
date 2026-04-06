@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAppState } from "@/components/anchor/AppStateContext";
+import { useAppState } from "@/components/excalistudy/AppStateContext";
 import { Search, X, Pin, PinOff, Calendar, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,12 @@ import { Badge } from "@/components/ui/badge";
 import { useSidebar } from "@/components/ui/sidebar";
 
 export default function AssignmentsPhase() {
-  const { assignments, subjects, addAssignment, toggleAssignmentPin } = useAppState();
+  const { assignments, subjects, addAssignment, removeAssignment, updateAssignment, toggleAssignmentPin } = useAppState();
   const { state } = useSidebar();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("deadline");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [newTitle, setNewTitle] = useState("");
   const [newDeadline, setNewDeadline] = useState("");
@@ -30,15 +31,40 @@ export default function AssignmentsPhase() {
     setNewNotes(updated);
   };
 
+  const resetForm = () => {
+    setEditingId(null);
+    setNewTitle("");
+    setNewDeadline("");
+    setNewSubjectId("");
+    setNewNotes([""]);
+    setIsFormOpen(false);
+  };
+
+  const openEditForm = (asn: any) => {
+    setEditingId(asn.id);
+    setNewTitle(asn.title);
+    setNewDeadline(asn.deadline);
+    setNewSubjectId(asn.subjectId);
+    setNewNotes(asn.keepInMind.length ? asn.keepInMind : [""]);
+    setIsFormOpen(true);
+    // Scroll to top where the form is
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleAddAssignment = (e: React.FormEvent) => {
     e.preventDefault();
     if (newTitle.trim() && newDeadline && newSubjectId) {
-      addAssignment(newSubjectId, newTitle.trim(), newDeadline, newNotes);
-      setNewTitle("");
-      setNewDeadline("");
-      setNewSubjectId("");
-      setNewNotes([""]);
-      setIsFormOpen(false);
+      if (editingId) {
+        updateAssignment(editingId, {
+          title: newTitle.trim(),
+          deadline: newDeadline,
+          subjectId: newSubjectId,
+          keepInMind: newNotes.filter(n => n.trim() !== "")
+        });
+      } else {
+        addAssignment(newSubjectId, newTitle.trim(), newDeadline, newNotes);
+      }
+      resetForm();
     }
   };
 
@@ -109,9 +135,9 @@ export default function AssignmentsPhase() {
             <div>
               <div className="flex justify-between items-center mb-4 border-b pb-2">
                 <h2 className="text-xl font-caveat font-semibold inline-flex items-center gap-2">
-                  <Plus className="h-4 w-4" /> Add a new assignment
+                  <Plus className="h-4 w-4" /> {editingId ? "Edit assignment" : "Add a new assignment"}
                 </h2>
-                <Button variant="ghost" size="icon" onClick={() => setIsFormOpen(false)}>
+                <Button variant="ghost" size="icon" onClick={resetForm}>
                   <X className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </div>
@@ -170,11 +196,11 @@ export default function AssignmentsPhase() {
                 </div>
 
                 <div className="flex justify-end gap-2 mt-4">
-                  <Button type="button" variant="ghost" onClick={() => setIsFormOpen(false)} className="font-caveat text-lg">
+                  <Button type="button" variant="ghost" onClick={resetForm} className="font-caveat text-lg">
                     Cancel
                   </Button>
                   <Button type="submit" disabled={!newTitle.trim() || !newDeadline || !newSubjectId} className="font-caveat text-lg px-6">
-                    Add Assignment
+                    {editingId ? "Save Changes" : "Add Assignment"}
                   </Button>
                 </div>
               </form>
@@ -219,10 +245,30 @@ export default function AssignmentsPhase() {
                     size="icon" 
                     className={`h-8 w-8 rounded-full shadow-sm ${asn.isPinned ? 'bg-primary' : ''}`}
                     onClick={(e) => { e.stopPropagation(); toggleAssignmentPin(asn.id); }}
+                    title={asn.isPinned ? "Unpin" : "Pin"}
                   >
-                    {asn.isPinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+                    {asn.isPinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="h-8 w-8 rounded-full shadow-sm"
+                    onClick={(e) => { e.stopPropagation(); openEditForm(asn); }}
+                    title="Edit Assignment"
+                  >
+                    <Plus className="h-3 w-3" style={{ transform: 'rotate(45deg)' }} /> 
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="h-8 w-8 rounded-full shadow-sm hover:bg-destructive hover:text-white"
+                    onClick={(e) => { e.stopPropagation(); removeAssignment(asn.id); }}
+                    title="Delete Assignment"
+                  >
+                    <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
+
 
                 <div className="flex items-center gap-4 mb-4">
                   <div className={`h-12 w-12 rounded-lg flex flex-col items-center justify-center border-2 border-dashed shrink-0 shadow-sm ${days < 0 ? 'border-destructive text-destructive' : 'border-border text-muted-foreground'}`}>
@@ -267,3 +313,4 @@ export default function AssignmentsPhase() {
     </div>
   );
 }
+

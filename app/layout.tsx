@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Caveat, Inter, Lora, Roboto_Mono } from "next/font/google";
-import { AnchorSidebar } from "@/components/anchor/AnchorSidebar";
+import { ExcaliStudySidebar } from "@/components/excalistudy/ExcaliStudySidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppStateProvider } from "@/components/anchor/AppStateContext";
-import { StagingDock } from "@/components/anchor/StagingDock";
-import { ThemeProvider } from "@/components/anchor/ThemeProvider";
-import { FontInjector } from "@/components/anchor/FontInjector";
-import { SidebarTriggerConditional } from "@/components/anchor/SidebarTriggerConditional";
+import { AppStateProvider } from "@/components/excalistudy/AppStateContext";
+import { StagingDock } from "@/components/excalistudy/StagingDock";
+import { ThemeProvider } from "@/components/excalistudy/ThemeProvider";
+import { FontInjector } from "@/components/excalistudy/FontInjector";
+import { SidebarTriggerConditional } from "@/components/excalistudy/SidebarTriggerConditional";
 import "./globals.css";
 
 const caveat = Caveat({
@@ -69,7 +69,7 @@ export default function RootLayout({
               {/* Sidebar sits on top, flex handles its transition */}
               <div className="z-40 pointer-events-none absolute inset-0 flex h-full w-full">
                 <div className="pointer-events-auto flex h-full">
-                  <AnchorSidebar />
+                  <ExcaliStudySidebar />
                 </div>
               </div>
               
@@ -87,3 +87,4 @@ export default function RootLayout({
     </html>
   );
 }
+

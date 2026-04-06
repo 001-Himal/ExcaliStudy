@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAppState } from "@/components/anchor/AppStateContext";
+import { useAppState } from "@/components/excalistudy/AppStateContext";
 import { Search, Plus, X, Pin, PinOff, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { useSidebar } from "@/components/ui/sidebar";
 
 export default function SubjectsPhase() {
-  const { subjects, addSubject, toggleSubjectPin } = useAppState();
+  const { subjects, addSubject, removeSubject, updateSubject, toggleSubjectPin } = useAppState();
   const { state } = useSidebar();
   const [searchTerm, setSearchTerm] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState("newest"); // "newest" | "alpha"
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newSubjectUnits, setNewSubjectUnits] = useState<string[]>([""]);
@@ -27,16 +28,34 @@ export default function SubjectsPhase() {
     setNewSubjectUnits(updated);
   };
 
+  const resetForm = () => {
+    setEditingId(null);
+    setNewSubjectName("");
+    setNewSubjectUnits([""]);
+    setIsFormOpen(false);
+  };
+
+  const openEditForm = (sub: any) => {
+    setEditingId(sub.id);
+    setNewSubjectName(sub.name);
+    setNewSubjectUnits(sub.units.length ? sub.units.map((u: any) => u.title) : [""]);
+    setIsFormOpen(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleAddSubject = (e: React.FormEvent) => {
     e.preventDefault();
     if (newSubjectName.trim()) {
-      // Assign a random color
-      const colors = ["#4285F4", "#DB4437", "#F4B400", "#0F9D58"];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-      addSubject(newSubjectName.trim(), randomColor, newSubjectUnits);
-      setNewSubjectName("");
-      setNewSubjectUnits([""]);
-      setIsFormOpen(false);
+      if (editingId) {
+         const sub = subjects.find(s => s.id === editingId);
+         const color = sub?.color || "#4285F4";
+         updateSubject(editingId, newSubjectName.trim(), color, newSubjectUnits);
+      } else {
+         const colors = ["#4285F4", "#DB4437", "#F4B400", "#0F9D58"];
+         const randomColor = colors[Math.floor(Math.random() * colors.length)];
+         addSubject(newSubjectName.trim(), randomColor, newSubjectUnits);
+      }
+      resetForm();
     }
   };
 
@@ -104,9 +123,9 @@ export default function SubjectsPhase() {
             <div>
               <div className="flex justify-between items-center mb-4 border-b pb-2">
                 <h2 className="text-xl font-caveat font-semibold inline-flex items-center gap-2">
-                  <Plus className="h-4 w-4" /> Add a new subject
+                  <Plus className="h-4 w-4" /> {editingId ? "Edit subject" : "Add a new subject"}
                 </h2>
-                <Button variant="ghost" size="icon" onClick={() => setIsFormOpen(false)}>
+                <Button variant="ghost" size="icon" onClick={resetForm}>
                   <X className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </div>
@@ -142,11 +161,11 @@ export default function SubjectsPhase() {
                 </div>
 
                 <div className="flex justify-end gap-2 mt-4">
-                  <Button type="button" variant="ghost" onClick={() => setIsFormOpen(false)} className="font-caveat text-lg">
+                  <Button type="button" variant="ghost" onClick={resetForm} className="font-caveat text-lg">
                     Cancel
                   </Button>
                   <Button type="submit" disabled={!newSubjectName.trim() || newSubjectUnits.every(u => !u.trim())} className="font-caveat text-lg px-6">
-                    Create Subject
+                    {editingId ? "Save Changes" : "Create Subject"}
                   </Button>
                 </div>
               </form>
@@ -177,8 +196,27 @@ export default function SubjectsPhase() {
                   size="icon" 
                   className={`h-8 w-8 rounded-full shadow-sm ${sub.isPinned ? 'bg-primary' : ''}`}
                   onClick={(e) => { e.stopPropagation(); toggleSubjectPin(sub.id); }}
+                  title={sub.isPinned ? "Unpin" : "Pin"}
                 >
-                  {sub.isPinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+                  {sub.isPinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-8 w-8 rounded-full shadow-sm"
+                  onClick={(e) => { e.stopPropagation(); openEditForm(sub); }}
+                  title="Edit Subject"
+                >
+                  <Plus className="h-3 w-3" style={{ transform: 'rotate(45deg)' }} /> 
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-8 w-8 rounded-full shadow-sm hover:bg-destructive hover:text-white"
+                  onClick={(e) => { e.stopPropagation(); removeSubject(sub.id); }}
+                  title="Delete Subject"
+                >
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
 
@@ -221,3 +259,4 @@ export default function SubjectsPhase() {
     </div>
   );
 }
+

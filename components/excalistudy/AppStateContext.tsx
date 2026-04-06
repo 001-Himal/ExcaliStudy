@@ -41,6 +41,10 @@ type AppStateContextType = {
   removeAssignment: (id: string) => void;
   removeRoadmap: (id: string) => void;
 
+  // Edit Actions
+  updateSubject: (id: string, name: string, color: string, units: string[]) => void;
+  updateAssignment: (id: string, updates: Partial<Omit<Assignment & { isPinned?: boolean }, 'id'>>) => void;
+
   // Staging Dock Actions
   stageItem: (item: StagedItem) => void;
   unstageItem: (id: string) => void;
@@ -122,43 +126,43 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
           topics: d.topics, timerMinutes: d.timer_minutes
         })));
       } else {
-        const storedDrafts = localStorage.getItem("anchor_drafts");
+        const storedDrafts = localStorage.getItem("excalistudy_drafts");
         if (storedDrafts) setDrafts(JSON.parse(storedDrafts));
       }
 
       // Staged items (keep transient in localStorage)
-      const storedStaged = localStorage.getItem("anchor_staged");
+      const storedStaged = localStorage.getItem("excalistudy_staged");
       if (storedStaged) setStagedItems(JSON.parse(storedStaged));
     }
     fetchAll();
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("anchor_staged", JSON.stringify(stagedItems));
+    localStorage.setItem("excalistudy_staged", JSON.stringify(stagedItems));
   }, [stagedItems]);
 
   useEffect(() => {
-    const sFont = localStorage.getItem("anchor_sidebarFont");
+    const sFont = localStorage.getItem("excalistudy_sidebarFont");
     if (sFont) setSidebarFont(sFont);
-    const tFont = localStorage.getItem("anchor_textFont");
+    const tFont = localStorage.getItem("excalistudy_textFont");
     if (tFont) setTextFont(tFont);
-    const cFont = localStorage.getItem("anchor_cardFont");
+    const cFont = localStorage.getItem("excalistudy_cardFont");
     if (cFont) setCardFont(cFont);
   }, []);
 
   const handleSetSidebarFont = (f: string) => {
     setSidebarFont(f);
-    localStorage.setItem("anchor_sidebarFont", f);
+    localStorage.setItem("excalistudy_sidebarFont", f);
   };
 
   const handleSetTextFont = (f: string) => {
     setTextFont(f);
-    localStorage.setItem("anchor_textFont", f);
+    localStorage.setItem("excalistudy_textFont", f);
   };
 
   const handleSetCardFont = (f: string) => {
     setCardFont(f);
-    localStorage.setItem("anchor_cardFont", f);
+    localStorage.setItem("excalistudy_cardFont", f);
   };
 
   // ---- TOOL LOGIC ----
@@ -258,6 +262,67 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setAssignments((prev) => prev.filter((a) => a.id !== id));
     await supabase.from('assignments').delete().eq('id', id);
   };
+
+  const updateSubject = async (id: string, name: string, color: string, rawUnits: string[]) => {
+    const validUnits = rawUnits.filter(u => u.trim() !== "");
+    // Gather all existing units from local state to preserve isDone status
+    let newUnits: any[] = [];
+    let newSubjectObj: any = null;
+    
+    setSubjects(prev => {
+      const existingSub = prev.find(s => s.id === id);
+      newUnits = validUnits.map((u, i) => {
+        const titleTrimmed = u.trim();
+        const existingUnit = existingSub?.units.find(x => x.title === titleTrimmed);
+        if (existingUnit) return existingUnit;
+        return { id: `u-${Date.now()}-${i}`, title: titleTrimmed, isDone: false };
+      });
+      
+      const newProps = { 
+        name, 
+        color, 
+        unitsTotal: newUnits.length,
+        unitsDone: newUnits.filter(x => x.isDone).length,
+        units: newUnits 
+      };
+
+      const newState = prev.map(s => {
+        if (s.id === id) {
+          newSubjectObj = { ...s, ...newProps };
+          return newSubjectObj;
+        }
+        return s;
+      });
+      return newState;
+    });
+
+    if (newSubjectObj) {
+      await supabase.from('subjects').update({
+        name: newSubjectObj.name,
+        color: newSubjectObj.color,
+        units_total: newSubjectObj.unitsTotal,
+        units_done: newSubjectObj.unitsDone,
+        units: newSubjectObj.units
+      }).eq('id', id);
+    }
+  };
+
+  const updateAssignment = async (id: string, updates: Partial<Omit<Assignment & { isPinned?: boolean }, 'id'>>) => {
+    setAssignments(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
+    
+    const dbPayload: any = {};
+    if (updates.subjectId !== undefined) dbPayload.subject_id = updates.subjectId;
+    if (updates.title !== undefined) dbPayload.title = updates.title;
+    if (updates.deadline !== undefined) dbPayload.deadline = updates.deadline;
+    if (updates.keepInMind !== undefined) dbPayload.keep_in_mind = updates.keepInMind;
+    if (updates.status !== undefined) dbPayload.status = updates.status;
+    if (updates.isPinned !== undefined) dbPayload.is_pinned = (updates as any).isPinned;
+    
+    if (Object.keys(dbPayload).length > 0) {
+      await supabase.from('assignments').update(dbPayload).eq('id', id);
+    }
+  };
+
 
   const addRoadmap = async (title: string, rawMilestones: {title: string, completed: boolean}[]) => {
     const valid = rawMilestones.filter(m => m.title.trim() !== "");
@@ -366,6 +431,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       addTool, removeTool, toggleToolPin,
       addSubject, addAssignment, addRoadmap,
       removeSubject, removeAssignment, removeRoadmap,
+      updateSubject, updateAssignment,
       stageItem, unstageItem, clearStagedItems,
       saveDraft, removeDraft,
       toggleSubjectPin, toggleAssignmentPin, toggleRoadmapPin,
@@ -384,3 +450,4 @@ export function useAppState() {
   if (!context) throw new Error("useAppState must be used within AppStateProvider");
   return context;
 }
+

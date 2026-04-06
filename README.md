@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ExcaliStudy (Formerly Anchor)
 
-## Getting Started
+**ExcaliStudy** is a spatial study environment designed to help you focus and organize your learning efficiently. Using an infinite canvas, you can drop reference notes, draft working cards, time your sessions, and plan your roadmaps—all in one place.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Infinite Study Canvas**: A drag-and-drop workspace powered by React Flow.
+- **Working Cards**: Interactive cards with checklists and dedicated Pomodoro-style timers for distinct study sessions.
+- **Cloud Persistence**: Instantly sync your Drafts, Assignments, Subject Modules, and Roadmaps to Supabase.
+- **Customizable Environment**: Granular control over the fonts for your sidebar, generic text, and card/canvas text independently.
+- **Dark/Light Modes**: Integrated seamless theme switching.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend Framework**: Next.js 16 (React 19)
+- **Styling**: Tailwind CSS, Shadcn/UI
+- **Canvas Interface**: `xyflow/react` (React Flow)
+- **Database/Persistence**: Supabase (utilizes JSONB models mapped to React state for speed and flexibility)
+- **Deployment**: Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Setup and Getting Started
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+Make sure you have a [Supabase](https://supabase.com) project created.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/001-Himal/ExcaliStudy.git
+   cd ExcaliStudy
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-## Deploy on Vercel
+3. **Configure Environment Variables:**
+   - Copy `.env.example` to `.env.local` (or create a new `.env.local` file).
+   - Add your Supabase credentials:
+     ```env
+     NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-url.supabase.co
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+     ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Initialize Database Schema:**
+   Go to your Supabase project dashboard -> SQL Editor -> Create a new query.
+   Copy the contents of `database/01_schema.sql` and run the script to generate the tables required for persistence.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+5. **Start the local development server:**
+   ```bash
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000) to view the canvas.
+
+## Deployment
+
+If deploying to Vercel, ensure you navigate to your Vercel Project **Settings -> Environment Variables** and add both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+
+For a comprehensive technical architecture overview and development logs, see **[PROJECT.md](./PROJECT.md)**.

@@ -1,4 +1,4 @@
-# Anchor — Product Requirements Document
+# ExcaliStudy — Product Requirements Document
 
 **Version:** 2.0 (Major Revision — Canvas Architecture)
 **Date:** April 2026
@@ -18,11 +18,11 @@
 
 ---
 
-## 1. What Anchor Is
+## 1. What ExcaliStudy Is
 
 A **desktop-only** personal study organiser built around an infinite canvas — like Excalidraw, but instead of drawing shapes, you drag your academic data onto it.
 
-You open Anchor, see your canvas, drag your semester's subjects and assignments onto it, check things off, and close it. That's the core loop.
+You open ExcaliStudy, see your canvas, drag your semester's subjects and assignments onto it, check things off, and close it. That's the core loop.
 
 **It replaces the physical copy students use to:**
 - Track pending assignments, deadlines, formats, notes
@@ -70,7 +70,7 @@ Mostly black and white. One warm accent only.
 
 ### 2.3 Typography
 
-**Handwritten font everywhere** — this is the defining character of Anchor.
+**Handwritten font everywhere** — this is the defining character of ExcaliStudy.
 
 | Role | Font | Weight |
 |---|---|---|
@@ -551,15 +551,15 @@ canvas_cards
 | 7 | Assignment days remaining logic | High value, low effort |
 | 8 | Tools section | Searchable bookmarks |
 | 9 | Roadmap section | Learning goals |
-| 10 | Polish (fonts, colors, empty states, transitions) | Makes it feel like Anchor |
+| 10 | Polish (fonts, colors, empty states, transitions) | Makes it feel like ExcaliStudy |
 
 ---
 
-## 12. What Makes Anchor Different
+## 12. What Makes ExcaliStudy Different
 
 Most student tools feel like productivity software — Notion, Trello, Linear. They're powerful but cold.
 
-Anchor feels like opening your notebook. The canvas is your desk. You pull out what you need, check things off, and put it back. The handwritten font, the dot grid, the warm off-white — it all feels like yours, not like enterprise software.
+ExcaliStudy feels like opening your notebook. The canvas is your desk. You pull out what you need, check things off, and put it back. The handwritten font, the dot grid, the warm off-white — it all feels like yours, not like enterprise software.
 
 That's the bet: a tool that feels personal wins over a tool that has more features.
 
