@@ -32,6 +32,11 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
     e.dataTransfer.setData("application/reactflow", type);
     e.dataTransfer.setData("application/reactflow-id", id);
     e.dataTransfer.effectAllowed = "move";
+    window.dispatchEvent(new Event('app-drag-start'));
+  };
+
+  const onDragEnd = () => {
+    window.dispatchEvent(new Event('app-drag-end'));
   };
 
   return (
@@ -84,6 +89,7 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                            className="cursor-grab active:cursor-grabbing hover:bg-black/5"
                            draggable 
                            onDragStart={(e) => onDragStart(e, "assignment", asn.id)}
+                           onDragEnd={onDragEnd}
                         >
                           <div className="flex items-center gap-2 w-full">
                             <GripVertical className="h-3 w-3 text-muted-foreground/50 opacity-0 group-hover/collapsible:opacity-100 shrink-0" />
@@ -135,6 +141,7 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                         className="cursor-grab active:cursor-grabbing hover:bg-black/5"
                         draggable 
                         onDragStart={(e) => onDragStart(e, "subject", sub.id)}
+                        onDragEnd={onDragEnd}
                       >
                         <div className="flex items-center gap-2">
                           <GripVertical className="h-3 w-3 text-muted-foreground/50 shrink-0" />
@@ -180,6 +187,7 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                         className="cursor-grab active:cursor-grabbing hover:bg-black/5"
                         draggable 
                         onDragStart={(e) => onDragStart(e, "roadmap", rm.id)}
+                        onDragEnd={onDragEnd}
                       >
                         <div className="flex items-center gap-2">
                           <GripVertical className="h-3 w-3 text-muted-foreground/50 shrink-0" />
@@ -223,6 +231,7 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                         className="cursor-grab active:cursor-grabbing hover:bg-black/5"
                         draggable 
                         onDragStart={(e) => onDragStart(e, "draft", draft.id)}
+                        onDragEnd={onDragEnd}
                       >
                         <div className="flex items-center gap-2 w-full">
                           <GripVertical className="h-3 w-3 text-muted-foreground/50 shrink-0 opacity-0 group-hover/collapsible:opacity-100" />
@@ -265,6 +274,7 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                         className="cursor-grab active:cursor-grabbing hover:bg-black/5"
                         draggable 
                         onDragStart={(e) => onDragStart(e, "tool", tool.id)}
+                        onDragEnd={onDragEnd}
                       >
                         <div className="flex items-center gap-2">
                           <GripVertical className="h-3 w-3 text-muted-foreground/50 shrink-0" />

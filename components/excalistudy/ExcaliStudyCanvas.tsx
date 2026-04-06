@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import {
   ReactFlow,
   Controls,
@@ -15,6 +15,7 @@ import {
   useReactFlow,
   Panel
 } from "@xyflow/react";
+import { useRouter } from "next/navigation";
 import "@xyflow/react/dist/style.css";
 import { MousePointer2, Type, Eraser, ZoomIn, ZoomOut, Trash2, StickyNote } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ function CanvasContent() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition, zoomIn, zoomOut, fitView } = useReactFlow();
   const [activeTool, setActiveTool] = useState<"select" | "text" | "sticky" | "eraser">("select");
+  const router = useRouter();
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -96,8 +98,11 @@ function CanvasContent() {
       
       // Auto-remove from the staging dock if it came from there
       unstageItem(id);
+
+      // Successfully dropped - automatically return to the workspace to see it
+      router.push("/");
     },
-    [screenToFlowPosition, setNodes, unstageItem, drafts]
+    [screenToFlowPosition, setNodes, unstageItem, drafts, router]
   );
 
   const onPaneClick = useCallback((event: React.MouseEvent) => {
@@ -204,10 +209,36 @@ function CanvasContent() {
 }
 
 export function ExcaliStudyCanvas() {
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const onDragStart = () => setIsDragging(true);
+    const onDragEnd = () => {
+      setTimeout(() => setIsDragging(false), 50); 
+    };
+    
+    // Also reset if drop happens
+    const handleGlobalDrop = () => {
+      setTimeout(() => setIsDragging(false), 50);
+    };
+
+    window.addEventListener("app-drag-start", onDragStart);
+    window.addEventListener("app-drag-end", onDragEnd);
+    window.addEventListener("drop", handleGlobalDrop);
+
+    return () => {
+      window.removeEventListener("app-drag-start", onDragStart);
+      window.removeEventListener("app-drag-end", onDragEnd);
+      window.removeEventListener("drop", handleGlobalDrop);
+    };
+  }, []);
+
   return (
-    <ReactFlowProvider>
-      <CanvasContent />
-    </ReactFlowProvider>
+    <main className={`absolute inset-0 h-full w-full overflow-hidden transition-all ${isDragging ? "z-50" : "z-0"}`}>
+      <ReactFlowProvider>
+        <CanvasContent />
+      </ReactFlowProvider>
+    </main>
   );
 }
 

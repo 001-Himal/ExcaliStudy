@@ -3,7 +3,8 @@ import { Caveat, Inter, Lora, Roboto_Mono } from "next/font/google";
 import { ExcaliStudySidebar } from "@/components/excalistudy/ExcaliStudySidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppStateProvider } from "@/components/excalistudy/AppStateContext";
-import { StagingDock } from "@/components/excalistudy/StagingDock";
+import { PageVisibilityWrapper } from "@/components/excalistudy/PageVisibilityWrapper";
+import { ExcaliStudyCanvas } from "@/components/excalistudy/ExcaliStudyCanvas";
 import { ThemeProvider } from "@/components/excalistudy/ThemeProvider";
 import { FontInjector } from "@/components/excalistudy/FontInjector";
 import { SidebarTriggerConditional } from "@/components/excalistudy/SidebarTriggerConditional";
@@ -60,8 +61,7 @@ export default function RootLayout({
             <FontInjector />
           <SidebarProvider>
             <div className="relative flex h-screen w-full overflow-hidden bg-background">
-              {/* Universal Staging Dock */}
-              <StagingDock />
+              <ExcaliStudyCanvas />
               
               {/* Keep trigger perfectly positioned at the top left, visible only when closed */}
               <SidebarTriggerConditional />
@@ -72,13 +72,12 @@ export default function RootLayout({
                   <ExcaliStudySidebar />
                 </div>
               </div>
-              
-              {/* Main canvas acts as background layer, fully centered regardless of sidebar */}
-              <main className="z-0 absolute inset-0 h-full w-full overflow-hidden">
-                <div className="pointer-events-auto h-full w-full relative">
+
+              <div className="z-10 pointer-events-none absolute inset-0 h-full w-full overflow-hidden">
+                <PageVisibilityWrapper className="pointer-events-auto h-full w-full relative">
                   {children}
-                </div>
-              </main>
+                </PageVisibilityWrapper>
+              </div>
             </div>
           </SidebarProvider>
         </AppStateProvider>

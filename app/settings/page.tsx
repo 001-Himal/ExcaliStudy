@@ -26,19 +26,20 @@ export default function SettingsPhase() {
   if (!mounted) return null;
 
   return (
-    <div className="absolute inset-0 z-10 w-full h-full bg-background flex flex-col justify-center items-center p-8 animate-in slide-in-from-bottom-8 overflow-y-auto">
-      {/* Top Right Close Button */}
-      <Link href="/">
-        <Button variant="ghost" size="icon" className="fixed top-6 right-6 hover:bg-destructive/10 hover:text-destructive group transition-colors shadow-sm bg-background/50 border backdrop-blur-sm z-50">
-          <X className="h-10 w-10 text-muted-foreground group-hover:text-destructive transition-colors shrink-0" strokeWidth={2.5} />
-        </Button>
-      </Link>
+    <div className="absolute inset-0 z-50 w-full h-full bg-black/20 backdrop-blur-sm flex justify-center items-center p-4 sm:p-8 animate-in fade-in duration-200">
+      
+      <div className="relative bg-background max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl border-2 p-8 sm:p-10 animate-in zoom-in-95 duration-300">
+        <Link href="/">
+          <Button variant="ghost" size="icon" className="absolute top-6 right-6 hover:bg-destructive/10 hover:text-destructive group transition-colors rounded-full">
+            <X className="h-6 w-6 text-muted-foreground group-hover:text-destructive transition-colors shrink-0" strokeWidth={2.5} />
+          </Button>
+        </Link>
 
-      <div className="max-w-2xl w-full space-y-12 pb-24 mt-20">
-        <div className="space-y-2 text-center">
-          <h1 className="text-4xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">Customize your study environment aesthetics.</p>
-        </div>
+        <div className="space-y-12">
+          <div className="space-y-2 text-left border-b pb-4">
+            <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+            <p className="text-muted-foreground text-sm">Customize your study environment aesthetics.</p>
+          </div>
 
         {/* Theme Settings */}
         <section className="space-y-6">
@@ -147,7 +148,7 @@ export default function SettingsPhase() {
             </div>
           </div>
         </section>
-
+        </div>
       </div>
     </div>
   );
