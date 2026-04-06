@@ -66,7 +66,7 @@ type AppStateContextType = {
   
   // Draft Actions
   saveDraft: (draft: DraftCard) => void;
-  removeDraft: (id: string) => void;
+  deleteDraft: (id: string) => void;
   
   // Generic Pin Actions for mocks (would normally be in their specific controllers)
   toggleSubjectPin: (id: string) => void;
@@ -485,7 +485,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const removeDraft = async (id: string) => {
+  const deleteDraft = async (id: string) => {
     setDrafts(prev => prev.filter(d => d.id !== id));
     await supabase.from('drafts').delete().eq('id', id);
   };
@@ -552,7 +552,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       updateSubject, updateAssignment,
       toggleSubjectUnit, toggleRoadmapMilestone,
       stageItem, unstageItem, clearStagedItems,
-      saveDraft, removeDraft,
+      saveDraft, deleteDraft,
       toggleSubjectPin,
       toggleAssignmentPin,
       toggleRoadmapPin,

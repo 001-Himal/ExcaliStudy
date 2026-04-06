@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronDown, GripVertical, User, Settings, X } from "lucide-react";
+import { ChevronDown, GripVertical, User, Settings, X, PanelLeftClose } from "lucide-react";
+import React from "react";
 import {
   Sidebar,
   useSidebar,
@@ -22,6 +23,7 @@ import Link from "next/link";
 export function ExcaliStudySidebar({ className }: { className?: string }) {
   const { tools, subjects, drafts, assignments, roadmaps, sidebarFont, projects, activeProjectId, loadProjectContext, deleteProject } = useAppState();
   const { toggleSidebar } = useSidebar();
+  const [projectToDelete, setProjectToDelete] = React.useState<string | null>(null);
 
   const getDaysRemaining = (deadline: string) => {
     const diff = new Date(deadline).getTime() - Date.now();
@@ -42,11 +44,11 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
   return (
     <Sidebar className={`border-r-sidebar-border bg-sidebar ${sidebarFont} ${className || ""}`}>
       <SidebarHeader className="h-14 flex items-center px-4 relative">
-        <Link href="/" className="text-2xl font-black font-sans text-primary tracking-widest hover:opacity-80 transition-opacity text-left focus:outline-none">
-          EXCALIDRAW
+        <Link href="/" className="text-base font-black font-sans text-primary tracking-widest hover:opacity-80 transition-opacity text-left focus:outline-none">
+          EXCALISTUDY
         </Link>
-        <button onClick={toggleSidebar} className="absolute right-2 top-3 p-1 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
-          <X className="h-6 w-6" strokeWidth={2.5} />
+        <button onClick={toggleSidebar} className="absolute right-2 top-3 p-1 rounded-md hover:bg-black/5 text-muted-foreground hover:text-foreground transition-colors">
+          <PanelLeftClose className="h-5 w-5 transition-transform active:scale-95" />
         </button>
       </SidebarHeader>
 
@@ -55,21 +57,21 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroup>
             <SidebarGroupLabel className="p-0 h-auto w-full">
-              <div className="flex w-full items-center justify-between p-2">
-                <Link href="/assignments" className="font-mono text-sm tracking-widest text-muted-foreground uppercase hover:text-foreground">
+              <div className="flex w-full items-center justify-between pt-[8px] pb-[4px] px-[8px]">
+                <Link href="/assignments" className="text-[11px] font-semibold tracking-[0.08em] text-[#8A8680] uppercase hover:text-foreground">
                   Assignments
                 </Link>
                 <div className="flex gap-1 ml-auto">
 
                   <CollapsibleTrigger>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    <ChevronDown className="h-[12px] w-[12px] text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
                   </CollapsibleTrigger>
                 </div>
               </div>
             </SidebarGroupLabel>
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="gap-[2px]">
                   {assignments.filter((a: any) => a.isPinned).map((asn: any) => {
                     const subject = subjects.find((s: any) => s.id === asn.subjectId);
                     const days = getDaysRemaining(asn.deadline);
@@ -88,13 +90,12 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                     return (
                       <SidebarMenuItem key={asn.id}>
                         <SidebarMenuButton 
-                           className="cursor-grab active:cursor-grabbing hover:bg-black/5"
+                           className="cursor-grab active:cursor-grabbing hover:bg-black/[0.03] text-[13px] h-[28px] rounded-[5px] px-[8px] py-[5px] border-l-2 border-transparent hover:border-[#F5E642]"
                            draggable 
                            onDragStart={(e) => onDragStart(e, "assignment", asn.id)}
                            onDragEnd={onDragEnd}
                         >
                           <div className="flex items-center gap-2 w-full">
-                            <GripVertical className="h-3 w-3 text-muted-foreground/50 opacity-0 group-hover/collapsible:opacity-100 shrink-0" />
                             {subject && (
                               <div
                                 className="w-2 h-2 rounded-full shrink-0"
@@ -102,7 +103,7 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                               />
                             )}
                             <span className="truncate flex-1">{asn.title}</span>
-                            <Badge variant="secondary" className={`text-[10px] px-1 py-0 ${badgeColor} font-sans`}>
+                            <Badge variant="secondary" className={`text-[11px] px-[6px] py-[2px] rounded-[4px] ${badgeColor} font-sans`}>
                               {badgeText}
                             </Badge>
                           </div>
@@ -116,37 +117,36 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
           </SidebarGroup>
         </Collapsible>
 
-        <div className="h-[1px] bg-sidebar-border mx-4 my-2" />
+        <div className="h-[1px] bg-sidebar-border mx-4 my-1" />
 
         {/* SUBJECTS */}
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroup>
             <SidebarGroupLabel className="p-0 h-auto w-full">
-              <div className="flex w-full items-center justify-between p-2">
-                <Link href="/subjects" className="font-mono text-sm tracking-widest text-muted-foreground uppercase hover:text-foreground">
+              <div className="flex w-full items-center justify-between pt-[8px] pb-[4px] px-[8px]">
+                <Link href="/subjects" className="text-[11px] font-semibold tracking-[0.08em] text-[#8A8680] uppercase hover:text-foreground">
                   Subjects
                 </Link>
                 <div className="flex gap-1 ml-auto">
 
                   <CollapsibleTrigger>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    <ChevronDown className="h-[12px] w-[12px] text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
                   </CollapsibleTrigger>
                 </div>
               </div>
             </SidebarGroupLabel>
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="gap-[2px]">
                   {subjects.filter((s: any) => s.isPinned).map((sub: any) => (
                     <SidebarMenuItem key={sub.id}>
                       <SidebarMenuButton
-                        className="cursor-grab active:cursor-grabbing hover:bg-black/5"
+                        className="cursor-grab active:cursor-grabbing hover:bg-black/[0.03] text-[13px] h-[28px] rounded-[5px] px-[8px] py-[5px] border-l-2 border-transparent hover:border-[#F5E642]"
                         draggable 
                         onDragStart={(e) => onDragStart(e, "subject", sub.id)}
                         onDragEnd={onDragEnd}
                       >
                         <div className="flex items-center gap-2">
-                          <GripVertical className="h-3 w-3 text-muted-foreground/50 shrink-0" />
                           <div
                             className="w-2 h-2 rounded-full shrink-0"
                             style={{ backgroundColor: sub.color }}
@@ -162,37 +162,36 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
           </SidebarGroup>
         </Collapsible>
         
-        <div className="h-[1px] bg-sidebar-border mx-4 my-2" />
+        <div className="h-[1px] bg-sidebar-border mx-4 my-1" />
 
         {/* ROADMAPS */}
         <Collapsible className="group/collapsible">
           <SidebarGroup>
             <SidebarGroupLabel className="p-0 h-auto w-full">
-              <div className="flex w-full items-center justify-between p-2">
-                <Link href="/roadmaps" className="font-mono text-sm tracking-widest text-muted-foreground uppercase hover:text-foreground">
+              <div className="flex w-full items-center justify-between pt-[8px] pb-[4px] px-[8px]">
+                <Link href="/roadmaps" className="text-[11px] font-semibold tracking-[0.08em] text-[#8A8680] uppercase hover:text-foreground">
                   Roadmaps
                 </Link>
                 <div className="flex gap-1 ml-auto">
 
                   <CollapsibleTrigger>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    <ChevronDown className="h-[12px] w-[12px] text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
                   </CollapsibleTrigger>
                 </div>
               </div>
             </SidebarGroupLabel>
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="gap-[2px]">
                   {roadmaps.filter((r: any) => r.isPinned).map((rm: any) => (
                     <SidebarMenuItem key={rm.id}>
                       <SidebarMenuButton 
-                        className="cursor-grab active:cursor-grabbing hover:bg-black/5"
+                        className="cursor-grab active:cursor-grabbing hover:bg-black/[0.03] text-[13px] h-[28px] rounded-[5px] px-[8px] py-[5px] border-l-2 border-transparent hover:border-[#F5E642]"
                         draggable 
                         onDragStart={(e) => onDragStart(e, "roadmap", rm.id)}
                         onDragEnd={onDragEnd}
                       >
                         <div className="flex items-center gap-2">
-                          <GripVertical className="h-3 w-3 text-muted-foreground/50 shrink-0" />
                           <span className="truncate">{rm.title}</span>
                         </div>
                       </SidebarMenuButton>
@@ -204,39 +203,38 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
           </SidebarGroup>
         </Collapsible>
 
-        <div className="h-[1px] bg-sidebar-border mx-4 my-2" />
+        <div className="h-[1px] bg-sidebar-border mx-4 my-1" />
 
         {/* DRAFTS */}
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroup>
             <SidebarGroupLabel className="p-0 h-auto w-full">
-              <div className="flex w-full items-center justify-between p-2">
-                <span className="font-mono text-sm tracking-widest text-muted-foreground uppercase">
+              <div className="flex w-full items-center justify-between pt-[8px] pb-[4px] px-[8px]">
+                <Link href="/drafts" className="text-[11px] font-semibold tracking-[0.08em] text-[#8A8680] uppercase hover:text-foreground">
                   Drafts
-                </span>
+                </Link>
                 <div className="flex gap-1 ml-auto">
                   <CollapsibleTrigger>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    <ChevronDown className="h-[12px] w-[12px] text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
                   </CollapsibleTrigger>
                 </div>
               </div>
             </SidebarGroupLabel>
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="gap-[2px]">
                   {drafts.length === 0 && (
                     <div className="px-5 py-2 text-xs text-muted-foreground italic">No saved drafts.</div>
                   )}
                   {drafts.map((draft: any) => (
                     <SidebarMenuItem key={draft.id}>
                       <SidebarMenuButton 
-                        className="cursor-grab active:cursor-grabbing hover:bg-black/5"
+                        className="cursor-grab active:cursor-grabbing hover:bg-black/[0.03] text-[13px] h-[28px] rounded-[5px] px-[8px] py-[5px] border-l-2 border-transparent hover:border-[#F5E642]"
                         draggable 
                         onDragStart={(e) => onDragStart(e, "draft", draft.id)}
                         onDragEnd={onDragEnd}
                       >
                         <div className="flex items-center gap-2 w-full">
-                          <GripVertical className="h-3 w-3 text-muted-foreground/50 shrink-0 opacity-0 group-hover/collapsible:opacity-100" />
                           <span className="truncate flex-1">{draft.title}</span>
                           <span className="text-[10px] text-muted-foreground border px-1 rounded-sm">{draft.timerMinutes}m</span>
                         </div>
@@ -249,26 +247,26 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
           </SidebarGroup>
         </Collapsible>
 
-        <div className="h-[1px] bg-sidebar-border mx-4 my-2" />
+        <div className="h-[1px] bg-sidebar-border mx-4 my-1" />
 
         {/* PROJECTS */}
         <Collapsible defaultOpen className="group/collapsible">
           <SidebarGroup>
             <SidebarGroupLabel className="p-0 h-auto w-full">
-              <div className="flex w-full items-center justify-between p-2">
-                <span className="font-mono text-sm tracking-widest text-muted-foreground uppercase">
+              <div className="flex w-full items-center justify-between pt-[8px] pb-[4px] px-[8px]">
+                <Link href="/projects" className="text-[11px] font-semibold tracking-[0.08em] text-[#8A8680] uppercase hover:text-foreground">
                   Projects
-                </span>
+                </Link>
                 <div className="flex gap-1 ml-auto">
                   <CollapsibleTrigger>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    <ChevronDown className="h-[12px] w-[12px] text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
                   </CollapsibleTrigger>
                 </div>
               </div>
             </SidebarGroupLabel>
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="gap-[2px]">
                   {projects.length === 0 && (
                     <div className="px-5 py-2 text-xs text-muted-foreground italic">No saved projects.</div>
                   )}
@@ -280,7 +278,7 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                             // Request canvas to save current first, then load
                             window.dispatchEvent(new CustomEvent("app-request-save-and-load", { detail: { id: proj.id } }));
                           }}
-                          className={`flex-1 flex items-center gap-2 w-full hover:bg-black/5 p-2 text-sm rounded-sm text-left ${activeProjectId === proj.id ? 'bg-accent font-medium' : ''}`}
+                          className={`flex-1 flex items-center gap-2 w-full hover:bg-black/[0.03] text-[13px] h-[28px] rounded-[5px] px-[8px] py-[5px] text-left border-l-2 hover:border-[#F5E642] ${activeProjectId === proj.id ? 'border-[#F5E642] bg-black/5' : 'border-transparent'}`}
                         >
                           <span className="truncate">{proj.title}</span>
                           {activeProjectId === proj.id && (
@@ -288,8 +286,8 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                           )}
                         </button>
                         <button 
-                          onClick={(e) => { e.stopPropagation(); deleteProject(proj.id); }}
-                          className="p-2 text-muted-foreground hover:text-destructive shrink-0"
+                          onClick={(e) => { e.stopPropagation(); setProjectToDelete(proj.id); }}
+                          className="p-2 text-muted-foreground hover:text-destructive shrink-0 h-[28px] flex items-center justify-center"
                           title="Delete Project"
                         >
                           <X className="w-3 h-3" />
@@ -297,10 +295,10 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                       </div>
                     </SidebarMenuItem>
                   ))}
-                  <div className="px-3 pt-2">
+                  <div className="px-[8px] pt-1">
                     <button 
                       onClick={() => window.dispatchEvent(new CustomEvent("app-request-save-as"))}
-                      className="w-full text-xs py-1.5 border border-dashed rounded-sm border-muted-foreground/30 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                      className="w-fit text-[12px] px-3 py-1 border border-solid rounded-[5px] border-[#D4D0C8] text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors text-left"
                     >
                       + Save Current Canvas
                     </button>
@@ -311,37 +309,36 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
           </SidebarGroup>
         </Collapsible>
 
-        <div className="h-[1px] bg-sidebar-border mx-4 my-2" />
+        <div className="h-[1px] bg-sidebar-border mx-4 my-1" />
 
         {/* TOOLS */}
         <Collapsible className="group/collapsible">
           <SidebarGroup>
             <SidebarGroupLabel className="p-0 h-auto w-full">
-              <div className="flex w-full items-center justify-between p-2">
-                <Link href="/tools" className="font-mono text-sm tracking-widest text-muted-foreground uppercase hover:text-foreground">
+              <div className="flex w-full items-center justify-between pt-[8px] pb-[4px] px-[8px]">
+                <Link href="/tools" className="text-[11px] font-semibold tracking-[0.08em] text-[#8A8680] uppercase hover:text-foreground">
                   Tools
                 </Link>
                 <div className="flex gap-1 ml-auto">
 
                   <CollapsibleTrigger>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                    <ChevronDown className="h-[12px] w-[12px] text-muted-foreground transition-transform group-data-[state=open]/collapsible:rotate-180" />
                   </CollapsibleTrigger>
                 </div>
               </div>
             </SidebarGroupLabel>
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="gap-[2px]">
                   {tools.filter((t: any) => t.isPinned).map((tool: any) => (
                     <SidebarMenuItem key={tool.id}>
                       <SidebarMenuButton 
-                        className="cursor-grab active:cursor-grabbing hover:bg-black/5"
+                        className="cursor-grab active:cursor-grabbing hover:bg-black/[0.03] text-[13px] h-[28px] rounded-[5px] px-[8px] py-[5px] border-l-2 border-transparent hover:border-[#F5E642]"
                         draggable 
                         onDragStart={(e) => onDragStart(e, "tool", tool.id)}
                         onDragEnd={onDragEnd}
                       >
                         <div className="flex items-center gap-2">
-                          <GripVertical className="h-3 w-3 text-muted-foreground/50 shrink-0" />
                           <div className="w-4 h-4 shrink-0 bg-white border border-border flex items-center justify-center text-[8px] rounded-sm">
                             {(tool.title[0] || "T").toUpperCase()}
                           </div>
@@ -357,23 +354,34 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
         </Collapsible>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-4">
+      <SidebarFooter className="border-t border-sidebar-border p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/settings" className="w-full">
-              <SidebarMenuButton size="lg" className="hover:bg-accent hover:text-accent-foreground font-mono">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Settings className="size-4" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold text-sm">Settings</span>
-                  <span className="text-xs text-muted-foreground">Manage Theme & Fonts</span>
-                </div>
+              <SidebarMenuButton className="flex items-center gap-2 hover:bg-accent hover:text-accent-foreground px-[12px] py-[8px] h-auto rounded-[5px]">
+                <Settings className="size-4" />
+                <span className="font-semibold text-[13px]">Settings</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
+      {projectToDelete && (
+        <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex justify-center items-center p-4">
+          <div className="bg-background max-w-sm w-full rounded-2xl shadow-xl border p-6 animate-in zoom-in-95 duration-200">
+            <h2 className="text-xl font-bold mb-2 text-foreground">Delete Project?</h2>
+            <p className="text-muted-foreground text-sm mb-6">This action cannot be undone. Are you sure you want to permanently delete this project?</p>
+            <div className="flex justify-end gap-2">
+              <button className="px-4 py-2 text-sm font-medium rounded-md hover:bg-muted" onClick={() => setProjectToDelete(null)}>Cancel</button>
+              <button className="px-4 py-2 text-sm font-medium rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => {
+                deleteProject(projectToDelete);
+                setProjectToDelete(null);
+              }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </Sidebar>
   );
 }

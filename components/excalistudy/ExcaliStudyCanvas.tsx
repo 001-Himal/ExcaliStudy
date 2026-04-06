@@ -221,6 +221,7 @@ function CanvasContent() {
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         fitView
+        fitViewOptions={{ maxZoom: 1, padding: 0.1 }}
         className="bg-transparent"
         minZoom={0.2}
         maxZoom={4}
@@ -360,6 +361,27 @@ export function ExcaliStudyCanvas() {
       <ReactFlowProvider>
         <CanvasContent />
       </ReactFlowProvider>
+      {isDragging && (
+        <div 
+          className="absolute right-0 top-0 bottom-0 w-40 border-l border-dashed border-destructive/40 bg-destructive/5 flex items-center justify-center p-4 z-[60] pointer-events-auto backdrop-blur-[1px]"
+          onDragOver={(e) => { 
+            e.preventDefault(); 
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = "none"; 
+          }}
+          onDrop={(e) => { 
+            e.preventDefault(); 
+            e.stopPropagation();
+            // Drop terminates natively without touching the canvas
+          }}
+        >
+           <span className="text-[11px] text-destructive/80 text-center font-bold tracking-widest uppercase flex flex-col gap-2">
+             <span>Drop Here</span>
+             <span className="opacity-50 text-[10px]">or</span>
+             <span>Press ESC<br/>to cancel</span>
+           </span>
+        </div>
+      )}
     </main>
   );
 }

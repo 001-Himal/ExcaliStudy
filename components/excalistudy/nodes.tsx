@@ -1,15 +1,30 @@
-import { Handle, Position, NodeProps, useReactFlow } from "@xyflow/react";
+import { Handle, Position, NodeProps, useReactFlow, NodeResizer } from "@xyflow/react";
 import { CheckSquare, Square, Trash2, Play, Pause, RotateCcw, Save, GitBranch, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAppState } from "./AppStateContext";
 
-// Helper for the hand-drawn card style
-const CardWrapper = ({ children, className = "", cardFont = "" }: { children: React.ReactNode; className?: string, cardFont?: string }) => (
-  <div className={`bg-card text-card-foreground p-3 rounded-md border-[1.5px] border-card-border shadow-card min-w-[260px] ${cardFont} ${className}`}>
-    <Handle type="target" position={Position.Top} className="opacity-0" />
-    {children}
-    <Handle type="source" position={Position.Bottom} className="opacity-0" />
-  </div>
+const CardWrapper = ({ children, className = "", cardFont = "", selected, resizable = false, minW = 260 }: { children: React.ReactNode; className?: string, cardFont?: string, selected?: boolean, resizable?: boolean, minW?: number }) => (
+  <>
+    {resizable && (
+      <NodeResizer 
+        isVisible={selected} 
+        minWidth={minW} 
+        minHeight={150} 
+        handleStyle={{ width: 12, height: 12, border: 'none', background: 'transparent', right: 0, bottom: 0, zIndex: 10 }}
+        lineStyle={{ border: 'none' }}
+      />
+    )}
+    <div className={`bg-card text-card-foreground p-3 rounded-md border-[1.5px] border-card-border shadow-card h-full w-full relative ${className}`} style={{ minWidth: minW }}>
+      <Handle type="target" position={Position.Top} className="opacity-0" />
+      {children}
+      <Handle type="source" position={Position.Bottom} className="opacity-0" />
+      {resizable && selected && (
+        <div className="absolute right-1 bottom-1 w-3 h-3 cursor-nwse-resize opacity-30 pointer-events-none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+        </div>
+      )}
+    </div>
+  </>
 );
 
 export function AssignmentNode({ data }: NodeProps) {
@@ -229,39 +244,63 @@ export function ToolNode({ data }: NodeProps) {
   );
 }
 
-export function TextNoteNode({ data }: NodeProps) {
+export function TextNoteNode({ data, selected }: NodeProps) {
   const [text, setText] = useState((data.text as string) || "");
 
   return (
-    <div className="min-w-[200px] border border-transparent hover:border-border focus-within:border-border focus-within:bg-card hover:bg-card/50 transition-colors rounded-md p-2">
-      <textarea
-        value={text as string}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="click to type..."
-        className="w-full bg-transparent resize-none outline-none font-sans text-lg text-foreground placeholder:text-muted-foreground min-h-[100px]"
-        onKeyDown={(e) => e.stopPropagation()} // Let typing happen without triggering React Flow panning
+    <>
+      <NodeResizer 
+        isVisible={selected} 
+        minWidth={150} 
+        minHeight={80} 
+        handleStyle={{ width: 12, height: 12, border: 'none', background: 'transparent', right: 0, bottom: 0 }}
+        lineStyle={{ border: 'none' }}
       />
-    </div>
+      <div className="w-full h-full min-w-[150px] border border-transparent hover:border-border focus-within:border-border focus-within:bg-card hover:bg-card/50 transition-colors rounded-md p-2 relative">
+        <textarea
+          value={text as string}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="click to type..."
+          className="w-full h-full bg-transparent resize-none outline-none font-sans text-lg text-foreground placeholder:text-muted-foreground"
+          onKeyDown={(e) => e.stopPropagation()} 
+        />
+        {selected && (
+          <div className="absolute right-1 bottom-1 w-2 h-2 cursor-nwse-resize opacity-20 pointer-events-none border-b-2 border-r-2 border-current rounded-br-[1px]" />
+        )}
+      </div>
+    </>
   );
 }
 
-export function StickyNoteNode({ data }: NodeProps) {
+export function StickyNoteNode({ data, selected }: NodeProps) {
   const [text, setText] = useState((data.text as string) || "");
 
   return (
-    <div className="min-w-[200px] bg-yellow-200 text-yellow-950 shadow-md p-4 transition-all focus-within:shadow-lg focus-within:-translate-y-1" style={{ borderRadius: '2px 24px 2px 2px' }}>
-      <textarea
-        value={text as string}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Sticky note..."
-        className="w-full bg-transparent resize-none outline-none font-caveat text-xl placeholder:text-yellow-950/50 min-h-[120px]"
-        onKeyDown={(e) => e.stopPropagation()}
+    <>
+      <NodeResizer 
+        isVisible={selected} 
+        minWidth={150} 
+        minHeight={150} 
+        handleStyle={{ width: 12, height: 12, border: 'none', background: 'transparent', right: 0, bottom: 0 }}
+        lineStyle={{ border: 'none' }}
       />
-    </div>
+      <div className="w-full h-full min-w-[150px] bg-yellow-200 text-yellow-950 shadow-md p-4 transition-all focus-within:shadow-lg focus-within:-translate-y-1 relative" style={{ borderRadius: '2px 24px 2px 2px' }}>
+        <textarea
+          value={text as string}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Sticky note..."
+          className="w-full h-full bg-transparent resize-none outline-none font-caveat text-xl placeholder:text-yellow-950/50"
+          onKeyDown={(e) => e.stopPropagation()}
+        />
+        {selected && (
+          <div className="absolute right-2 bottom-2 w-2 h-2 cursor-nwse-resize opacity-20 pointer-events-none border-b-2 border-r-2 border-current rounded-br-[1px]" />
+        )}
+      </div>
+    </>
   );
 }
 
-export function WorkingCardNode({ id, data }: NodeProps) {
+export function WorkingCardNode({ id, data, selected }: NodeProps) {
   const { saveDraft, cardFont } = useAppState();
   const { deleteElements } = useReactFlow();
   
@@ -318,7 +357,7 @@ export function WorkingCardNode({ id, data }: NodeProps) {
   };
 
   return (
-    <CardWrapper cardFont={cardFont} className="min-w-[280px]">
+    <CardWrapper cardFont={cardFont} selected={selected} resizable={true} className="flex flex-col">
       <div className="flex justify-between items-start mb-3 gap-2">
         <h3 className="font-semibold text-lg max-w-[180px] break-words leading-tight flex-1">{data.title as string}</h3>
         <div className="flex flex-col gap-2 items-end">
