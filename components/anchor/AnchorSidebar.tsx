@@ -37,7 +37,7 @@ export function AnchorSidebar({ className }: { className?: string }) {
   return (
     <Sidebar className={`border-r-sidebar-border bg-sidebar ${sidebarFont} ${className || ""}`}>
       <SidebarHeader className="h-14 flex items-center px-4 relative">
-        <h1 className="text-xl font-bold tracking-tight">Anchor</h1>
+        <h1 className="text-xl font-bold tracking-tight">ExcaliStudy</h1>
         <button onClick={toggleSidebar} className="absolute right-2 top-3 p-1 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
           <X className="h-6 w-6" strokeWidth={2.5} />
         </button>

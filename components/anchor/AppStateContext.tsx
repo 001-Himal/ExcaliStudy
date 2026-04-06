@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Tool, Subject, Assignment, Roadmap, DraftCard, MOCK_TOOLS, MOCK_SUBJECTS, MOCK_ASSIGNMENTS, MOCK_ROADMAPS } from "@/lib/mockData";
+import { supabase } from "@/lib/supabase";
 
 export type StagedItem = {
   id: string; // The original id of the dragged item
@@ -70,56 +71,71 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
   // Client-side hydration
   useEffect(() => {
-    const storedTools = localStorage.getItem("anchor_tools");
-    if (storedTools) setTools(JSON.parse(storedTools));
-    else setTools(MOCK_TOOLS.map(t => ({ ...t, isPinned: true })));
+    async function fetchAll() {
+      // Fetch Tools
+      const { data: tData } = await supabase.from('tools').select('*');
+      if (tData && tData.length > 0) {
+        setTools(tData.map(t => ({ id: t.id, title: t.title, url: t.url, domain: t.domain, isPinned: t.is_pinned })));
+      } else {
+        setTools(MOCK_TOOLS.map(t => ({ ...t, isPinned: true })));
+      }
 
-    const storedSubjects = localStorage.getItem("anchor_subjects");
-    if (storedSubjects) setSubjects(JSON.parse(storedSubjects));
-    else setSubjects(MOCK_SUBJECTS.map(s => ({ ...s, isPinned: true })));
+      // Fetch Subjects
+      const { data: sData } = await supabase.from('subjects').select('*');
+      if (sData && sData.length > 0) {
+        setSubjects(sData.map(s => ({
+          id: s.id, name: s.name, color: s.color,
+          unitsTotal: s.units_total, unitsDone: s.units_done,
+          units: s.units, isPinned: s.is_pinned
+        })));
+      } else {
+        setSubjects(MOCK_SUBJECTS.map(s => ({ ...s, isPinned: true })));
+      }
 
-    const storedAssignments = localStorage.getItem("anchor_assignments");
-    if (storedAssignments) setAssignments(JSON.parse(storedAssignments));
-    else setAssignments(MOCK_ASSIGNMENTS.map(a => ({ ...a, isPinned: true })));
+      // Fetch Assignments
+      const { data: aData } = await supabase.from('assignments').select('*');
+      if (aData && aData.length > 0) {
+        setAssignments(aData.map(a => ({
+          id: a.id, subjectId: a.subject_id, title: a.title, deadline: a.deadline,
+          keepInMind: a.keep_in_mind, status: a.status as any, isPinned: a.is_pinned
+        })));
+      } else {
+        setAssignments(MOCK_ASSIGNMENTS.map(a => ({ ...a, isPinned: true })));
+      }
 
-    const storedRoadmaps = localStorage.getItem("anchor_roadmaps");
-    if (storedRoadmaps) setRoadmaps(JSON.parse(storedRoadmaps));
-    else setRoadmaps(MOCK_ROADMAPS.map(r => ({ ...r, isPinned: true })));
-    
-    // Check for staged items
-    const storedStaged = localStorage.getItem("anchor_staged");
-    if (storedStaged) setStagedItems(JSON.parse(storedStaged));
+      // Fetch Roadmaps
+      const { data: rData } = await supabase.from('roadmaps').select('*');
+      if (rData && rData.length > 0) {
+        setRoadmaps(rData.map(r => ({
+          id: r.id, title: r.title, milestonesTotal: r.milestones_total,
+          milestonesDone: r.milestones_done, milestones: r.milestones, isPinned: r.is_pinned
+        })));
+      } else {
+        setRoadmaps(MOCK_ROADMAPS.map(r => ({ ...r, isPinned: true })));
+      }
 
-    // Check for drafts
-    const storedDrafts = localStorage.getItem("anchor_drafts");
-    if (storedDrafts) setDrafts(JSON.parse(storedDrafts));
+      // Fetch Drafts
+      const { data: dData } = await supabase.from('drafts').select('*');
+      if (dData && dData.length > 0) {
+        setDrafts(dData.map(d => ({
+          id: d.id, sourceId: d.source_id, title: d.title,
+          topics: d.topics, timerMinutes: d.timer_minutes
+        })));
+      } else {
+        const storedDrafts = localStorage.getItem("anchor_drafts");
+        if (storedDrafts) setDrafts(JSON.parse(storedDrafts));
+      }
+
+      // Staged items (keep transient in localStorage)
+      const storedStaged = localStorage.getItem("anchor_staged");
+      if (storedStaged) setStagedItems(JSON.parse(storedStaged));
+    }
+    fetchAll();
   }, []);
-
-  // Sync state arrays
-  useEffect(() => {
-    if (tools.length > 0) localStorage.getItem("anchor_tools") || localStorage.setItem("anchor_tools", JSON.stringify(tools));
-    localStorage.setItem("anchor_tools", JSON.stringify(tools));
-  }, [tools]);
-
-  useEffect(() => {
-    localStorage.setItem("anchor_subjects", JSON.stringify(subjects));
-  }, [subjects]);
-
-  useEffect(() => {
-    localStorage.setItem("anchor_assignments", JSON.stringify(assignments));
-  }, [assignments]);
-
-  useEffect(() => {
-    localStorage.setItem("anchor_roadmaps", JSON.stringify(roadmaps));
-  }, [roadmaps]);
 
   useEffect(() => {
     localStorage.setItem("anchor_staged", JSON.stringify(stagedItems));
   }, [stagedItems]);
-
-  useEffect(() => {
-    localStorage.setItem("anchor_drafts", JSON.stringify(drafts));
-  }, [drafts]);
 
   useEffect(() => {
     const sFont = localStorage.getItem("anchor_sidebarFont");
@@ -146,7 +162,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   };
 
   // ---- TOOL LOGIC ----
-  const addTool = (url: string) => {
+  const addTool = async (url: string) => {
     try {
       const validUrl = url.startsWith("http") ? url : `https://${url}`;
       const urlObj = new URL(validUrl);
@@ -160,23 +176,35 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         domain,
         isPinned: false, // Default unpinned
       };
+      
       setTools((prev) => [...prev, newTool]);
+      await supabase.from('tools').insert({
+        id: newTool.id, title: newTool.title, url: newTool.url, domain: newTool.domain, is_pinned: newTool.isPinned
+      });
     } catch (e) {
       console.error("Invalid URL", e);
     }
   };
 
-  const removeTool = (id: string) => {
+  const removeTool = async (id: string) => {
     setTools((prev) => prev.filter((t) => t.id !== id));
+    await supabase.from('tools').delete().eq('id', id);
   };
   
-  const toggleToolPin = (id: string) => {
-    setTools((prev) => prev.map(t => t.id === id ? { ...t, isPinned: !t.isPinned } : t));
+  const toggleToolPin = async (id: string) => {
+    let pinState = false;
+    setTools((prev) => prev.map(t => {
+      if (t.id === id) {
+        pinState = !t.isPinned;
+        return { ...t, isPinned: pinState };
+      }
+      return t;
+    }));
+    await supabase.from('tools').update({ is_pinned: pinState }).eq('id', id);
   };
 
   // ---- APP WIDE LOGIC ----
-
-  const addSubject = (name: string, color: string, rawUnits: string[]) => {
+  const addSubject = async (name: string, color: string, rawUnits: string[]) => {
     const validUnits = rawUnits.filter(u => u.trim() !== "");
     const units = validUnits.map((u, i) => ({
       id: `u-${Date.now()}-${i}`,
@@ -191,14 +219,23 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       unitsTotal: units.length,
       unitsDone: 0,
       units,
-      isPinned: true, // pin by default for better UX discovery
+      isPinned: true,
     };
+    
     setSubjects((prev) => [...prev, newSubject]);
+    await supabase.from('subjects').insert({
+      id: newSubject.id, name: newSubject.name, color: newSubject.color,
+      units_total: newSubject.unitsTotal, units_done: newSubject.unitsDone,
+      units: newSubject.units, is_pinned: newSubject.isPinned
+    });
   };
 
-  const removeSubject = (id: string) => setSubjects((prev) => prev.filter((s) => s.id !== id));
+  const removeSubject = async (id: string) => {
+    setSubjects((prev) => prev.filter((s) => s.id !== id));
+    await supabase.from('subjects').delete().eq('id', id);
+  };
   
-  const addAssignment = (subjectId: string, title: string, deadline: string, rawNotes: string[]) => {
+  const addAssignment = async (subjectId: string, title: string, deadline: string, rawNotes: string[]) => {
     const keepInMind = rawNotes.filter(n => n.trim() !== "");
     const newAssignment: Assignment & { isPinned: boolean } = {
       id: `asn-${Date.now()}`,
@@ -210,11 +247,19 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       isPinned: true,
     };
     setAssignments((prev) => [...prev, newAssignment]);
+    await supabase.from('assignments').insert({
+      id: newAssignment.id, subject_id: newAssignment.subjectId, title: newAssignment.title,
+      deadline: newAssignment.deadline, keep_in_mind: newAssignment.keepInMind, 
+      status: newAssignment.status, is_pinned: newAssignment.isPinned
+    });
   };
 
-  const removeAssignment = (id: string) => setAssignments((prev) => prev.filter((a) => a.id !== id));
+  const removeAssignment = async (id: string) => {
+    setAssignments((prev) => prev.filter((a) => a.id !== id));
+    await supabase.from('assignments').delete().eq('id', id);
+  };
 
-  const addRoadmap = (title: string, rawMilestones: {title: string, completed: boolean}[]) => {
+  const addRoadmap = async (title: string, rawMilestones: {title: string, completed: boolean}[]) => {
     const valid = rawMilestones.filter(m => m.title.trim() !== "");
     const milestones = valid.map((m, i) => ({
       id: `m-${Date.now()}-${i}`,
@@ -231,13 +276,43 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       isPinned: true,
     };
     setRoadmaps((prev) => [...prev, newRoadmap]);
+    await supabase.from('roadmaps').insert({
+      id: newRoadmap.id, title: newRoadmap.title, milestones_total: newRoadmap.milestonesTotal,
+      milestones_done: newRoadmap.milestonesDone, milestones: newRoadmap.milestones, is_pinned: newRoadmap.isPinned
+    });
   };
 
-  const removeRoadmap = (id: string) => setRoadmaps((prev) => prev.filter((r) => r.id !== id));
+  const removeRoadmap = async (id: string) => {
+    setRoadmaps((prev) => prev.filter((r) => r.id !== id));
+    await supabase.from('roadmaps').delete().eq('id', id);
+  };
 
-  const toggleSubjectPin = (id: string) => setSubjects(prev => prev.map(s => s.id === id ? { ...s, isPinned: !s.isPinned } : s));
-  const toggleAssignmentPin = (id: string) => setAssignments(prev => prev.map(a => a.id === id ? { ...a, isPinned: !a.isPinned } : a));
-  const toggleRoadmapPin = (id: string) => setRoadmaps(prev => prev.map(r => r.id === id ? { ...r, isPinned: !r.isPinned } : r));
+  const toggleSubjectPin = async (id: string) => {
+    let pinState = false;
+    setSubjects(prev => prev.map(s => {
+      if (s.id === id) { pinState = !s.isPinned; return { ...s, isPinned: pinState }; }
+      return s;
+    }));
+    await supabase.from('subjects').update({ is_pinned: pinState }).eq('id', id);
+  };
+
+  const toggleAssignmentPin = async (id: string) => {
+    let pinState = false;
+    setAssignments(prev => prev.map(a => {
+      if (a.id === id) { pinState = !a.isPinned; return { ...a, isPinned: pinState }; }
+      return a;
+    }));
+    await supabase.from('assignments').update({ is_pinned: pinState }).eq('id', id);
+  };
+
+  const toggleRoadmapPin = async (id: string) => {
+    let pinState = false;
+    setRoadmaps(prev => prev.map(r => {
+      if (r.id === id) { pinState = !r.isPinned; return { ...r, isPinned: pinState }; }
+      return r;
+    }));
+    await supabase.from('roadmaps').update({ is_pinned: pinState }).eq('id', id);
+  };
 
   // ---- DOCK LOGIC ----
   const stageItem = (item: StagedItem) => {
@@ -255,18 +330,34 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   };
 
   // ---- DRAFT LOGIC ----
-  const saveDraft = (draft: DraftCard) => {
+  const saveDraft = async (draft: DraftCard) => {
+    let exists = false;
     setDrafts(prev => {
-      const exists = prev.find(d => d.id === draft.id);
+      exists = !!prev.find(d => d.id === draft.id);
       if (exists) {
         return prev.map(d => d.id === draft.id ? draft : d);
       }
       return [...prev, draft];
     });
+
+    const payload = {
+      id: draft.id,
+      source_id: draft.sourceId,
+      title: draft.title,
+      topics: draft.topics,
+      timer_minutes: draft.timerMinutes
+    };
+
+    if (exists) {
+      await supabase.from('drafts').update(payload).eq('id', draft.id);
+    } else {
+      await supabase.from('drafts').insert(payload);
+    }
   };
 
-  const removeDraft = (id: string) => {
+  const removeDraft = async (id: string) => {
     setDrafts(prev => prev.filter(d => d.id !== id));
+    await supabase.from('drafts').delete().eq('id', id);
   };
 
   return (
@@ -278,9 +369,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       stageItem, unstageItem, clearStagedItems,
       saveDraft, removeDraft,
       toggleSubjectPin, toggleAssignmentPin, toggleRoadmapPin,
-      sidebarFont,
-      textFont,
-      cardFont,
+      sidebarFont, textFont, cardFont,
       setSidebarFont: handleSetSidebarFont,
       setTextFont: handleSetTextFont,
       setCardFont: handleSetCardFont,
