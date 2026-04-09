@@ -35,7 +35,7 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Excalidraw",
+  title: "ExcaliStudy",
   description: "Personal study organizer built around an infinite canvas.",
 };
 

@@ -1,7 +1,8 @@
 import { Handle, Position, NodeProps, useReactFlow, NodeResizer } from "@xyflow/react";
 import { CheckSquare, Square, Trash2, Play, Pause, RotateCcw, Save, GitBranch, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAppState } from "./AppStateContext";
+import { SketchyProgressBar } from "./SketchyProgress";
 
 const CardWrapper = ({ children, className = "", cardFont = "", selected, resizable = false, minW = 260 }: { children: React.ReactNode; className?: string, cardFont?: string, selected?: boolean, resizable?: boolean, minW?: number }) => (
   <>
@@ -113,10 +114,8 @@ export function SubjectNode({ id, data }: NodeProps) {
       </div>
       
       <div className="flex items-center gap-2 mb-2 text-sm">
-        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-          <div className="h-full bg-accent transition-all" style={{ width: `${progressPercent}%` }} />
-        </div>
-        <span className="text-muted-foreground whitespace-nowrap">{doneCount}/{sub.unitsTotal} units</span>
+        <SketchyProgressBar value={progressPercent} color={sub.color} width={200} height={6} className="flex-1" />
+        <span className="text-muted-foreground whitespace-nowrap font-sans text-xs">{doneCount}/{sub.unitsTotal} units</span>
       </div>
       
       <div className="h-[1.5px] bg-border my-2" />
@@ -183,10 +182,8 @@ export function RoadmapNode({ id, data }: NodeProps) {
       </div>
       
       <div className="flex items-center gap-2 mb-2 text-sm">
-        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-          <div className="h-full bg-accent transition-all" style={{ width: `${progressPercent}%` }} />
-        </div>
-        <span className="text-muted-foreground whitespace-nowrap">{doneCount}/{rm.milestonesTotal} done</span>
+        <SketchyProgressBar value={progressPercent} color="#6965db" width={200} height={6} className="flex-1" />
+        <span className="text-muted-foreground whitespace-nowrap font-sans text-xs">{doneCount}/{rm.milestonesTotal} done</span>
       </div>
       
       <div className="h-[1.5px] bg-border my-2" />
@@ -246,27 +243,34 @@ export function ToolNode({ data }: NodeProps) {
 
 export function TextNoteNode({ data, selected }: NodeProps) {
   const [text, setText] = useState((data.text as string) || "");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-focus when newly created (empty text)
+  useEffect(() => {
+    if (!text && textareaRef.current) {
+      setTimeout(() => textareaRef.current?.focus(), 50);
+    }
+  }, []);
 
   return (
     <>
       <NodeResizer 
         isVisible={selected} 
-        minWidth={150} 
-        minHeight={80} 
-        handleStyle={{ width: 12, height: 12, border: 'none', background: 'transparent', right: 0, bottom: 0 }}
-        lineStyle={{ border: 'none' }}
+        minWidth={60} 
+        minHeight={28} 
+        handleStyle={{ width: 8, height: 8, border: 'none', background: selected ? '#6965db' : 'transparent', borderRadius: '50%' }}
+        lineStyle={{ borderColor: selected ? '#6965db' : 'transparent', borderWidth: 1 }}
       />
-      <div className="w-full h-full min-w-[150px] border border-transparent hover:border-border focus-within:border-border focus-within:bg-card hover:bg-card/50 transition-colors rounded-md p-2 relative">
+      <div className={`w-full h-full min-w-[60px] p-1 relative transition-colors ${selected ? '' : ''}`}>
         <textarea
+          ref={textareaRef}
           value={text as string}
           onChange={(e) => setText(e.target.value)}
-          placeholder="click to type..."
-          className="w-full h-full bg-transparent resize-none outline-none font-sans text-lg text-foreground placeholder:text-muted-foreground"
-          onKeyDown={(e) => e.stopPropagation()} 
+          placeholder="Type something..."
+          className="w-full h-full bg-transparent resize-none outline-none font-caveat text-xl text-foreground placeholder:text-muted-foreground/40 leading-snug nodrag"
+          onKeyDown={(e) => e.stopPropagation()}
+          style={{ caretColor: '#6965db' }}
         />
-        {selected && (
-          <div className="absolute right-1 bottom-1 w-2 h-2 cursor-nwse-resize opacity-20 pointer-events-none border-b-2 border-r-2 border-current rounded-br-[1px]" />
-        )}
       </div>
     </>
   );

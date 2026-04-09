@@ -18,10 +18,11 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { useAppState } from "@/components/excalistudy/AppStateContext";
+import { SketchyProgressBar } from "@/components/excalistudy/SketchyProgress";
 import Link from "next/link";
 
 export function ExcaliStudySidebar({ className }: { className?: string }) {
-  const { tools, subjects, drafts, assignments, roadmaps, sidebarFont, projects, activeProjectId, loadProjectContext, deleteProject } = useAppState();
+  const { tools, subjects, drafts, assignments, roadmaps, sidebarFont, projects, activeProjectId, loadProjectContext, deleteProject, isFocusMode } = useAppState();
   const { toggleSidebar } = useSidebar();
   const [projectToDelete, setProjectToDelete] = React.useState<string | null>(null);
 
@@ -40,6 +41,8 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
   const onDragEnd = () => {
     window.dispatchEvent(new Event('app-drag-end'));
   };
+
+  if (isFocusMode) return null;
 
   return (
     <Sidebar className={`border-r-sidebar-border bg-sidebar ${sidebarFont} ${className || ""}`}>
@@ -141,17 +144,28 @@ export function ExcaliStudySidebar({ className }: { className?: string }) {
                   {subjects.filter((s: any) => s.isPinned).map((sub: any) => (
                     <SidebarMenuItem key={sub.id}>
                       <SidebarMenuButton
-                        className="cursor-grab active:cursor-grabbing hover:bg-black/[0.03] text-[13px] h-[28px] rounded-[5px] px-[8px] py-[5px] border-l-2 border-transparent hover:border-[#F5E642]"
+                        className="cursor-grab active:cursor-grabbing hover:bg-black/[0.03] text-[13px] h-auto rounded-[5px] px-[8px] py-[5px] border-l-2 border-transparent hover:border-[#F5E642]"
                         draggable 
                         onDragStart={(e) => onDragStart(e, "subject", sub.id)}
                         onDragEnd={onDragEnd}
                       >
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-2 h-2 rounded-full shrink-0"
-                            style={{ backgroundColor: sub.color }}
+                        <div className="flex flex-col gap-1 w-full">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-2 h-2 rounded-full shrink-0"
+                              style={{ backgroundColor: sub.color }}
+                            />
+                            <span className="truncate flex-1">{sub.name}</span>
+                            <span className="text-[10px] text-muted-foreground font-mono">
+                              {sub.units.filter((u: any) => u.isDone).length}/{sub.unitsTotal}
+                            </span>
+                          </div>
+                          <SketchyProgressBar
+                            value={Math.round((sub.units.filter((u: any) => u.isDone).length / Math.max(sub.unitsTotal, 1)) * 100)}
+                            color={sub.color}
+                            width={180}
+                            height={4}
                           />
-                          <span className="truncate">{sub.name}</span>
                         </div>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

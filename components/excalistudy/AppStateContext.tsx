@@ -31,6 +31,12 @@ type AppStateContextType = {
   activeProjectId: string | null;
   setActiveProjectId: (id: string | null) => void;
 
+  // Focus & Productivity
+  isFocusMode: boolean;
+  setFocusMode: (v: boolean) => void;
+  isPomodoroVisible: boolean;
+  setPomodoroVisible: (v: boolean) => void;
+
   sidebarFont: string;
   textFont: string;
   cardFont: string;
@@ -90,6 +96,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [stagedItems, setStagedItems] = useState<StagedItem[]>([]);
   const [projects, setProjects] = useState<ExcaliProject[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const [isFocusMode, setFocusMode] = useState(false);
+  const [isPomodoroVisible, setPomodoroVisible] = useState(false);
   const [sidebarFont, setSidebarFont] = useState<string>("font-sans");
   const [textFont, setTextFont] = useState<string>("font-sans");
   const [cardFont, setCardFont] = useState<string>("font-caveat");
@@ -545,6 +553,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       projects,
       activeProjectId,
       setActiveProjectId,
+      isFocusMode, setFocusMode,
+      isPomodoroVisible, setPomodoroVisible,
       tools, subjects, assignments, roadmaps, drafts, stagedItems,
       addTool, removeTool, toggleToolPin,
       addSubject, addAssignment, addRoadmap,
