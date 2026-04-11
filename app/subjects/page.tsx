@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { useSidebar } from "@/components/ui/sidebar";
+
 
 export default function SubjectsPhase() {
   const { subjects, addSubject, removeSubject, updateSubject, toggleSubjectPin } = useAppState();
-  const { state } = useSidebar();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -69,7 +69,7 @@ export default function SubjectsPhase() {
     });
 
   return (
-    <div className={`h-full w-full overflow-y-auto bg-background pointer-events-auto relative transition-all duration-300 ease-in-out ${state === "expanded" ? "md:pl-[var(--sidebar-width)]" : ""}`}>
+    <div className="h-full w-full overflow-y-auto bg-background pointer-events-auto relative">
       <Link href="/">
         <Button variant="ghost" className="absolute top-6 right-6 h-16 w-16 rounded-full hover:bg-destructive/10 hover:text-destructive group transition-colors z-20 p-0">
           <X className="h-10 w-10 text-muted-foreground group-hover:text-destructive transition-colors shrink-0" strokeWidth={2.5} />

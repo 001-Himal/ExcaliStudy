@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { Caveat, Inter, Lora, Roboto_Mono } from "next/font/google";
-import { ExcaliStudySidebar } from "@/components/excalistudy/ExcaliStudySidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppStateProvider } from "@/components/excalistudy/AppStateContext";
 import { PageVisibilityWrapper } from "@/components/excalistudy/PageVisibilityWrapper";
 import { ExcaliStudyCanvas } from "@/components/excalistudy/ExcaliStudyCanvas";
+import { StudyPanel } from "@/components/excalistudy/StudyPanel";
 import { ThemeProvider } from "@/components/excalistudy/ThemeProvider";
 import { FontInjector } from "@/components/excalistudy/FontInjector";
-import { SidebarTriggerConditional } from "@/components/excalistudy/SidebarTriggerConditional";
 import "./globals.css";
 
 const caveat = Caveat({
@@ -50,7 +48,10 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${caveat.variable} ${inter.variable} ${lora.variable} ${robotoMono.variable} h-full antialiased`}
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col font-sans bg-background text-foreground">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col font-sans bg-background text-foreground"
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -59,33 +60,23 @@ export default function RootLayout({
         >
           <AppStateProvider>
             <FontInjector />
-          <SidebarProvider>
-            <div className="relative flex h-screen w-full overflow-hidden bg-background">
+            <div className="relative flex h-screen w-full overflow-hidden">
+              {/* Excalidraw canvas fills the entire screen */}
               <ExcaliStudyCanvas />
-              
-              {/* Keep trigger perfectly positioned at the top left, visible only when closed */}
-              <SidebarTriggerConditional />
 
-              {/* Sidebar sits on top, flex handles its transition */}
-              <div className="z-40 pointer-events-none absolute inset-0 flex h-full w-full">
-                <div className="pointer-events-auto flex h-full">
-                  <ExcaliStudySidebar />
-                </div>
-              </div>
+              {/* Study Panel — right side floating sidebar */}
+              <StudyPanel />
 
-              <div className="z-10 pointer-events-none absolute inset-0 h-full w-full overflow-hidden">
+              {/* Page route overlays (assignments, subjects, settings, etc.) */}
+              <div className="z-[50] pointer-events-none absolute inset-0 h-full w-full overflow-hidden">
                 <PageVisibilityWrapper className="pointer-events-auto h-full w-full relative">
                   {children}
                 </PageVisibilityWrapper>
               </div>
             </div>
-          </SidebarProvider>
-        </AppStateProvider>
+          </AppStateProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
-
-
-
